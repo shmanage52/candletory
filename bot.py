@@ -13,22 +13,35 @@ CHANNEL_USERNAME = "@Candletory"  # نام کاربری کانال
 # راه‌اندازی ربات
 app = Client("candletory_bot", bot_token=API_TOKEN, api_id=APP_ID, api_hash=APP_HASH)
 
-# تابع دریافت سیگنال‌ها از MQL5
-def fetch_newest_signals():
-    url = "https://www.mql5.com/en/signals"
+
+# تابع: دریافت اطلاعات سشن‌های معاملاتی
+def fetch_trading_sessions():
+    url = "https://market24hclock.com/"
     try:
         response = requests.get(url)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, "html.parser")
-            signal_elements = soup.select(".signal-entry-title a")
-            references = [signal.text.strip() for signal in signal_elements]
-            return references[:5]  # پنج سیگنال اول
+            
+            # یافتن بخش سشن‌ها
+            sessions = soup.select(".sessions-table tbody tr")
+            session_data = []
+            
+            for session in sessions:
+                columns = session.find_all("td")
+                if len(columns) >= 4:
+                    market = columns[0].text.strip()
+                    status = columns[1].text.strip()
+                    open_time = columns[2].text.strip()
+                    close_time = columns[3].text.strip()
+                    session_data.append(
+                        f"📍 بازار: {market}\n🟢 وضعیت: {status}\n⏰ باز: {open_time} - بسته: {close_time}"
+                    )
+            
+            return "\n\n".join(session_data)
         else:
-            print("❌ خطا در دریافت سیگنال‌ها")
-            return None
+            return "❌ خطا در دریافت اطلاعات از Market24hClock"
     except Exception as e:
-        print(f"❌ خطا در اتصال به سایت: {e}")
-        return None
+        return f"❌ خطا: {str(e)}"
 
 # ارسال پیام به کانال
 def send_signal_to_group(signal):
@@ -75,6 +88,15 @@ def get_signals(client, message):
         )
     else:
         message.reply_text("❌ سیگنال جدیدی پیدا نشد.")
+
+# سشن‌های معاملاتی
+@app.on_message(filters.text & filters.regex("🕒 سشن‌های معاملاتی"))
+def trading_sessions(client, message):
+    sessions_info = fetch_trading_sessions()
+    message.reply_text(
+        f"🌍 **اطلاعات سشن‌های معاملاتی:**\n\n{sessions_info}",
+        disable_web_page_preview=True
+    )
 
 # شروع ارسال خودکار
 @app.on_message(filters.text & filters.regex("🚀 شروع ارسال خودکار"))
