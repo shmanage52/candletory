@@ -13,7 +13,6 @@ CHANNEL_USERNAME = "@Candletory"  # نام کاربری کانال
 # راه‌اندازی ربات
 app = Client("candletory_bot", bot_token=API_TOKEN, api_id=APP_ID, api_hash=APP_HASH)
 
-
 # تابع: دریافت اطلاعات سشن‌های معاملاتی
 def fetch_trading_sessions():
     url = "https://market24hclock.com/"
@@ -70,7 +69,7 @@ def start(client, message):
         reply_markup=ReplyKeyboardMarkup(
             [
                 [KeyboardButton("📡 دریافت سیگنال‌ها"), KeyboardButton("🚀 شروع ارسال خودکار")],
-                [KeyboardButton("🔚 خروج")]
+                [KeyboardButton("🕒 سشن‌های معاملاتی"), KeyboardButton("🔚 خروج")]
             ],
             resize_keyboard=True
         )
