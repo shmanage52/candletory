@@ -64,8 +64,9 @@ def auto_post_signals():
 @app.on_message(filters.command("start"))
 def start(client, message):
     message.reply_text(
-        "👋 خوش آمدید به ربات Candletory!\n"
-        "لطفاً یکی از گزینه‌های زیر را انتخاب کنید:",
+        "👋 خوش آمدید به ربات Candletory!\n\n"
+        "قدرت تجارت هوشمند را در نوک انگشتان خود آزاد کنید. 📱💹\n\n"
+        "🔻لطفاً یکی از گزینه‌های زیر را انتخاب کنید:🔻",
         reply_markup=ReplyKeyboardMarkup(
             [
                 [KeyboardButton("📡 دریافت سیگنال‌ها"), KeyboardButton("🚀 شروع ارسال خودکار")],
