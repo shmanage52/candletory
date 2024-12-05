@@ -74,7 +74,6 @@ def start(client, message):
             resize_keyboard=True
         )
     )
-
 # دریافت سیگنال‌ها
 @app.on_message(filters.text & filters.regex("📡 دریافت سیگنال‌ها"))
 def get_signals(client, message):
@@ -89,6 +88,13 @@ def get_signals(client, message):
         message.reply_text("❌ سیگنال جدیدی پیدا نشد.")
 
 # سشن‌های معاملاتی
+@app.on_message(filters.command("sessions"))
+def trading_sessions_command(client, message):
+    sessions_info = fetch_trading_sessions()
+    message.reply_text(
+        f"🌍 **اطلاعات سشن‌های معاملاتی:**\n\n{sessions_info}",
+        disable_web_page_preview=True
+    )
 @app.on_message(filters.text & filters.regex("🕒 سشن‌های معاملاتی"))
 def trading_sessions(client, message):
     sessions_info = fetch_trading_sessions()
