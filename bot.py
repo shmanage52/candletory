@@ -114,7 +114,7 @@ def fetch_api_data(client, message):
 @app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
 def invite_friends(client, message):
     user_id = str(message.from_user.id)
-    invite_link = f"https://t.me/YOUR_BOT_USERNAME?start={user_id}"  # جایگزین با نام کاربری ربات
+    invite_link = f"https://t.me/candletory_bot?start={user_id}"  # جایگزین با نام کاربری ربات
     message.reply_text(
         f"🌟 **دوستان خود را دعوت کنید!**\n\n"
         f"🔗 لینک دعوت شما:\n{invite_link}\n\n"
