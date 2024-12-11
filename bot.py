@@ -5,7 +5,7 @@ from pyrogram import Client, filters
 from pyrogram.types import ReplyKeyboardMarkup, KeyboardButton
 from datetime import datetime
 
-# اطلاعات ربات
+# اطلاعات 
 API_TOKEN = "7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ"  # جایگزین کنید با کلید API خود
 APP_ID = 25709855  # App ID تلگرام
 APP_HASH = "740efc27f273ac589176b85853ef8088"  # App Hash تلگرام
