@@ -1,119 +1,119 @@
 import time
+import requests
+import json
 from pyrogram import Client, filters
 from pyrogram.types import ReplyKeyboardMarkup, KeyboardButton
-import requests
-from bs4 import BeautifulSoup
+from datetime import datetime
 
 # اطلاعات ربات
-API_TOKEN = "7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ"
-APP_ID = 25709855
-APP_HASH = "740efc27f273ac589176b85853ef8088"
-CHANNEL_USERNAME = "@Candletory"  # نام کاربری کانال
+API_TOKEN = "7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ"  # جایگزین کنید با کلید API خود
+APP_ID = 25709855  # App ID تلگرام
+APP_HASH = "740efc27f273ac589176b85853ef8088"  # App Hash تلگرام
 
 # راه‌اندازی ربات
 app = Client("candletory_bot", bot_token=API_TOKEN, api_id=APP_ID, api_hash=APP_HASH)
 
-# تابع: دریافت اطلاعات سشن‌های معاملاتی
-def fetch_trading_sessions():
-    url = "https://market24hclock.com/"
+# ذخیره پروفایل کاربران در فایل
+USER_DB = "user_profiles.json"
+
+def load_profiles():
     try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            soup = BeautifulSoup(response.text, "html.parser")
-            
-            # یافتن بخش سشن‌ها
-            sessions = soup.select(".sessions-table tbody tr")
-            session_data = []
-            
-            for session in sessions:
-                columns = session.find_all("td")
-                if len(columns) >= 4:
-                    market = columns[0].text.strip()
-                    status = columns[1].text.strip()
-                    open_time = columns[2].text.strip()
-                    close_time = columns[3].text.strip()
-                    session_data.append(
-                        f"📍 بازار: {market}\n🟢 وضعیت: {status}\n⏰ باز: {open_time} - بسته: {close_time}"
-                    )
-            
-            return "\n\n".join(session_data)
-        else:
-            return "❌ خطا در دریافت اطلاعات از Market24hClock"
-    except Exception as e:
-        return f"❌ خطا: {str(e)}"
+        with open(USER_DB, "r") as file:
+            return json.load(file)
+    except FileNotFoundError:
+        return {}
 
-# ارسال پیام به کانال
-def send_signal_to_group(signal):
-    try:
-        message = f"📢 سیگنال جدید: {signal}\n🌐 [مشاهده سیگنال در MQL5](https://www.mql5.com/en/signals)"
-        app.send_message(CHANNEL_USERNAME, message, disable_web_page_preview=True)
-    except Exception as e:
-        print(f"❌ خطا در ارسال پیام: {e}")
+def save_profiles(profiles):
+    with open(USER_DB, "w") as file:
+        json.dump(profiles, file, indent=4)
 
-# تنظیمات ارسال خودکار
-def auto_post_signals():
-    signals = fetch_newest_signals()
-    if signals:
-        for signal in signals:
-            send_signal_to_group(signal)
-            time.sleep(5)  # فاصله زمانی بین ارسال‌ها
-    else:
-        print("❌ سیگنال جدیدی پیدا نشد.")
+user_profiles = load_profiles()
 
-# دستور شروع
+# ایجاد پروفایل کاربر
 @app.on_message(filters.command("start"))
 def start(client, message):
+    user_id = message.from_user.id
+    if str(user_id) not in user_profiles:
+        user_profiles[str(user_id)] = {
+            "name": message.from_user.first_name,
+            "username": message.from_user.username,
+            "is_premium": False,
+            "joined_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+        save_profiles(user_profiles)
+
     message.reply_text(
-        "👋 خوش آمدید به ربات Candletory!\n\n"
-        "قدرت تجارت هوشمند را در نوک انگشتان خود آزاد کنید. 📱💹\n\n"
+        f"👋 خوش آمدید {message.from_user.first_name}!\n"
+            "قدرت تجارت هوشمند را در نوک انگشتان خود آزاد کنید. 📱💹\n\n"
         "🔻لطفاً یکی از گزینه‌های زیر را انتخاب کنید:🔻",
         reply_markup=ReplyKeyboardMarkup(
             [
-                [KeyboardButton("📡 دریافت سیگنال‌ها"), KeyboardButton("🚀 شروع ارسال خودکار")],
-                [KeyboardButton("🕒 سشن‌های معاملاتی"), KeyboardButton("🔚 خروج")]
+                [KeyboardButton("📡 دریافت اطلاعات API"), KeyboardButton("💳 اشتراک VIP")],
+                [KeyboardButton("👤 پروفایل من"), KeyboardButton("🔚 خروج")]
             ],
             resize_keyboard=True
         )
     )
-# دریافت سیگنال‌ها
-@app.on_message(filters.text & filters.regex("📡 دریافت سیگنال‌ها"))
-def get_signals(client, message):
-    signals = fetch_newest_signals()
-    if signals:
-        signal_text = "\n".join([f"🔹 {signal}" for signal in signals])
+
+# نمایش پروفایل کاربر
+@app.on_message(filters.text & filters.regex("👤 پروفایل من"))
+def show_profile(client, message):
+    user_id = str(message.from_user.id)
+    if user_id in user_profiles:
+        profile = user_profiles[user_id]
+        is_premium = "بله ✅" if profile["is_premium"] else "خیر ❌"
         message.reply_text(
-            f"📢 **سیگنال‌های جدید:**\n\n{signal_text}\n\n🌐 [مشاهده سیگنال‌ها در MQL5](https://www.mql5.com/en/signals)",
-            disable_web_page_preview=True
+            f"👤 **پروفایل شما:**\n\n"
+            f"🆔 آیدی: {profile['username']}\n"
+            f"📛 نام: {profile['name']}\n"
+            f"🌟 اشتراک VIP: {is_premium}\n"
+            f"⏰ تاریخ عضویت: {profile['joined_at']}"
         )
     else:
-        message.reply_text("❌ سیگنال جدیدی پیدا نشد.")
+        message.reply_text("❌ پروفایل شما یافت نشد. لطفاً دستور /start را بزنید.")
 
-# سشن‌های معاملاتی
-@app.on_message(filters.command("sessions"))
-def trading_sessions_command(client, message):
-    sessions_info = fetch_trading_sessions()
+# پرداخت برای اشتراک VIP
+@app.on_message(filters.text & filters.regex("💳 اشتراک VIP"))
+def buy_vip(client, message):
     message.reply_text(
-        f"🌍 **اطلاعات سشن‌های معاملاتی:**\n\n{sessions_info}",
-        disable_web_page_preview=True
-    )
-@app.on_message(filters.text & filters.regex("🕒 سشن‌های معاملاتی"))
-def trading_sessions(client, message):
-    sessions_info = fetch_trading_sessions()
-    message.reply_text(
-        f"🌍 **اطلاعات سشن‌های معاملاتی:**\n\n{sessions_info}",
-        disable_web_page_preview=True
+        "🌟 **اشتراک VIP:**\n"
+        "برای فعال‌سازی اشتراک VIP، پرداخت خود را از طریق لینک زیر انجام دهید:\n"
+        "[لینک پرداخت](https://candletory.com/payment)\n\n"
+        "پس از پرداخت، رسید خود را ارسال کنید."
     )
 
-# شروع ارسال خودکار
-@app.on_message(filters.text & filters.regex("🚀 شروع ارسال خودکار"))
-def start_auto_signals(client, message):
-    message.reply_text("✅ ارسال خودکار سیگنال‌ها شروع شد!")
-    auto_post_signals()
+# بررسی اشتراک VIP
+@app.on_message(filters.text & filters.regex("بررسی پرداخت"))
+def check_payment(client, message):
+    user_id = str(message.from_user.id)
+    if user_id in user_profiles:
+        # بررسی پرداخت: این بخش باید با API پرداخت شما ادغام شود
+        # به‌صورت پیش‌فرض فرض می‌کنیم پرداخت موفق باشد:
+        user_profiles[user_id]["is_premium"] = True
+        save_profiles(user_profiles)
+        message.reply_text("✅ اشتراک VIP شما فعال شد!")
+    else:
+        message.reply_text("❌ پروفایل شما یافت نشد. لطفاً دستور /start را بزنید.")
 
-# خروج
+# استفاده از API برای داده‌ها
+@app.on_message(filters.text & filters.regex("📡 دریافت اطلاعات API"))
+def fetch_api_data(client, message):
+    api_url = "https://api.example.com/data"  # جایگزین با URL API شما
+    headers = {"Authorization": "Bearer YOUR_API_KEY"}  # جایگزین با کلید API
+    try:
+        response = requests.get(api_url, headers=headers)
+        if response.status_code == 200:
+            data = response.json()  # فرض می‌کنیم پاسخ JSON است
+            message.reply_text(f"📊 **نتایج API:**\n\n{json.dumps(data, indent=4)}")
+        else:
+            message.reply_text(f"❌ خطا در دریافت اطلاعات: {response.status_code}")
+    except Exception as e:
+        message.reply_text(f"❌ خطای اتصال: {str(e)}")
+
+# خروج از ربات
 @app.on_message(filters.text & filters.regex("🔚 خروج"))
 def exit_bot(client, message):
-    message.reply_text("🚪 از ربات خارج شدید.\nبرای بازگشت، /start را بزنید.")
+    message.reply_text("🚪 از ربات خارج شدید. برای بازگشت، /start را بزنید.")
 
 # اجرای ربات
 app.run()
