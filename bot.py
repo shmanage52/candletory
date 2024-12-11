@@ -110,7 +110,7 @@ def fetch_api_data(client, message):
     except Exception as e:
         message.reply_text(f"❌ خطای اتصال: {str(e)}")
 
-# دعوت از دوستان
+# دعوت دوستان
 @app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
 def invite_friends(client, message):
     user_id = str(message.from_user.id)
