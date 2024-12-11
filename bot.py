@@ -110,6 +110,17 @@ def fetch_api_data(client, message):
     except Exception as e:
         message.reply_text(f"❌ خطای اتصال: {str(e)}")
 
+# دعوت از دوستان
+@app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
+def invite_friends(client, message):
+    user_id = str(message.from_user.id)
+    invite_link = f"https://t.me/YOUR_BOT_USERNAME?start={user_id}"  # جایگزین با نام کاربری ربات
+    message.reply_text(
+        f"🌟 **دوستان خود را دعوت کنید!**\n\n"
+        f"🔗 لینک دعوت شما:\n{invite_link}\n\n"
+        "✅ به ازای هر دوستی که از لینک شما استفاده کند، 1 امتیاز دریافت خواهید کرد."
+    )        
+
 # خروج از ربات
 @app.on_message(filters.text & filters.regex("🔚 خروج"))
 def exit_bot(client, message):
