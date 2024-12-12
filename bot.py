@@ -4,6 +4,9 @@ import json
 from pyrogram import Client, filters
 from pyrogram.types import ReplyKeyboardMarkup, KeyboardButton
 from datetime import datetime
+import matplotlib.pyplot as plt
+import numpy as np
+from io import BytesIO
 
 # اطلاعات 
 API_TOKEN = "7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ"  # جایگزین کنید با کلید API خود
@@ -13,83 +16,84 @@ APP_HASH = "740efc27f273ac589176b85853ef8088"  # App Hash تلگرام
 # راه‌اندازی 
 app = Client("candletory_bot", bot_token=API_TOKEN, api_id=APP_ID, api_hash=APP_HASH)
 
-# ذخیره پروفایل کاربران در فایل
-USER_DB = "user_profiles.json"
+# لیست ارزهای دیجیتال
+crypto_list = ['bitcoin', 'ethereum', 'dogecoin', 'litecoin', 'ripple', 'cardano', 'polkadot', 'solana', 'shiba-inu', 'binancecoin', 'tron', 'uniswap', 'chainlink', 'monero', 'vechain', 'tether', 'stellar', 'aave', 'sushi', 'dogecoin']
 
-def load_profiles():
-    try:
-        with open(USER_DB, "r") as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return {}
-
-def save_profiles(profiles):
-    with open(USER_DB, "w") as file:
-        json.dump(profiles, file, indent=4)
-
-user_profiles = load_profiles()
-
-# لیست 20 ارز دیجیتال معروف
-crypto_list = [
-    'bitcoin', 'ethereum', 'dogecoin', 'ripple', 'cardano',
-    'polkadot', 'litecoin', 'binancecoin', 'chainlink', 'uniswap',
-    'solana', 'avalanche-2', 'shiba-inu', 'terra-luna', 'vechain',
-    'stellar', 'monero', 'tron', 'cosmos', 'filecoin'
-]
-
-# تابع دریافت قیمت ارز دیجیتال
-def get_crypto_price(crypto_id='bitcoin'):
-    url = f'https://api.coingecko.com/api/v3/simple/price?ids={crypto_id}&vs_currencies=usd'
+# تابع برای دریافت قیمت لحظه‌ای ارز
+def get_crypto_price(crypto):
+    url = f"https://api.coingecko.com/api/v3/simple/price?ids={crypto}&vs_currencies=usd"
     response = requests.get(url)
-    if response.status_code == 200:
-        data = response.json()
-        if crypto_id in data:
-            return data[crypto_id]['usd']
-    return None
+    data = response.json()
+    if crypto in data:
+        return data[crypto]['usd']
+    else:
+        return None
 
+# تابع برای دریافت قیمت تاریخچه‌ای و رسم نمودار
+def get_price_history(crypto):
+    url = f"https://api.coingecko.com/api/v3/coins/{crypto}/market_chart?vs_currency=usd&days=7"
+    response = requests.get(url)
+    data = response.json()
+    if 'prices' in data:
+        prices = [item[1] for item in data['prices']]
+        return prices
+    return []
+
+# تابع برای رسم نمودار
+def plot_price_chart(prices, crypto_name):
+    plt.figure(figsize=(10, 6))
+    plt.plot(prices, label=f"{crypto_name} Price", color='blue')
+    plt.title(f"نمودار قیمت {crypto_name} در 7 روز گذشته")
+    plt.xlabel("روزها")
+    plt.ylabel("قیمت (USD)")
+    plt.legend()
+    plt.grid(True)
+
+    # ذخیره نمودار به صورت تصویر
+    img = BytesIO()
+    plt.savefig(img, format='png')
+    img.seek(0)
+    return img
+
+# نمایش لیست ارزها به کاربر
 @app.on_message(filters.command("start"))
 def start(client, message):
-    user_id = message.from_user.id
-
-    # بررسی یا ایجاد پروفایل کاربر
-    if str(user_id) not in user_profiles:
-        user_profiles[str(user_id)] = {
-            "name": message.from_user.first_name,
-            "username": message.from_user.username,
-            "points": 0,
-            "joined_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        }
-        save_profiles(user_profiles)
-
+    keyboard = [
+        [KeyboardButton("📡 دریافت اطلاعات API"), KeyboardButton("💳 اشتراک VIP")],
+        [KeyboardButton("👤 پروفایل من"), KeyboardButton("📨 دعوت از دوستان")],
+        [KeyboardButton("🔚 خروج"), KeyboardButton("💱 نرخ لحظه ای ارز دیجیتال")]
+    ]
     message.reply_text(
         f"👋 خوش آمدید {message.from_user.first_name}!\n"
         "از منوی زیر استفاده کنید:",
-        reply_markup=ReplyKeyboardMarkup(
-            [
-                [KeyboardButton("💰 نرخ لحظه‌ای ارز دیجیتال")],
-                [KeyboardButton("📡 دریافت اطلاعات API"), KeyboardButton("💳 اشتراک VIP")],
-                [KeyboardButton("👤 پروفایل من"), KeyboardButton("📨 دعوت از دوستان")],
-                [KeyboardButton("🔚 خروج")]
-            ],
-            resize_keyboard=True
-        )
+        reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     )
 
-# نمایش قیمت ارزهای دیجیتال
-@app.on_message(filters.text & filters.regex("💰 نرخ لحظه‌ای ارز دیجیتال"))
-def show_crypto_price(client, message):
+# نمایش لیست ارزهای دیجیتال به کاربر
+@app.on_message(filters.text & filters.regex("💱 نرخ لحظه ای ارز دیجیتال"))
+def show_crypto_list(client, message):
     keyboard = []
     for crypto in crypto_list:
         price = get_crypto_price(crypto)
-        if price:
-            keyboard.append([KeyboardButton(f"{crypto.capitalize()}: ${price}")])
-        else:
-            keyboard.append([KeyboardButton(f"{crypto.capitalize()}: Not Available")])
+        price_text = f"${price}" if price else "قیمت در دسترس نیست"
+        keyboard.append([KeyboardButton(f"{crypto.capitalize()}: {price_text}")])
 
     message.reply_text(
         "لیست ارزهای دیجیتال معروف و قیمت‌های آن‌ها:",
         reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     )
+
+# نمایش نمودار پس از انتخاب ارز
+@app.on_message(filters.text & filters.regex('|'.join([crypto.capitalize() for crypto in crypto_list])))
+def show_chart(client, message):
+    crypto_name = message.text.split(":")[0].strip().lower()  # نام ارز انتخاب شده
+    price_history = get_price_history(crypto_name)
+
+    if price_history:
+        img = plot_price_chart(price_history, crypto_name)
+        message.reply_photo(img, caption=f"نمودار قیمت {crypto_name.capitalize()} در 7 روز گذشته:")
+    else:
+        message.reply_text(f"❌ نتواستم تاریخچه قیمت {crypto_name.capitalize()} رو پیدا کنم.")
 
 # نمایش پروفایل کاربر
 @app.on_message(filters.text & filters.regex("👤 پروفایل من"))
@@ -97,7 +101,7 @@ def show_profile(client, message):
     user_id = str(message.from_user.id)
     if user_id in user_profiles:
         profile = user_profiles[user_id]
-        is_premium = "بله ✅" if profile.get("is_premium", False) else "خیر ❌"
+        is_premium = "بله ✅" if profile["is_premium"] else "خیر ❌"
         message.reply_text(
             f"👤 **پروفایل شما:**\n\n"
             f"🆔 آیدی: {profile['username']}\n"
@@ -123,6 +127,8 @@ def buy_vip(client, message):
 def check_payment(client, message):
     user_id = str(message.from_user.id)
     if user_id in user_profiles:
+        # بررسی پرداخت: این بخش باید با API پرداخت شما ادغام شود
+        # به‌صورت پیش‌فرض فرض می‌کنیم پرداخت موفق باشد:
         user_profiles[user_id]["is_premium"] = True
         save_profiles(user_profiles)
         message.reply_text("✅ اشتراک VIP شما فعال شد!")
@@ -144,7 +150,7 @@ def fetch_api_data(client, message):
     except Exception as e:
         message.reply_text(f"❌ خطای اتصال: {str(e)}")
 
-# 📨 دعوت از دوستان
+# 📨 دعوت از دوستان"
 @app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
 def invite_friends(client, message):
     user_id = str(message.from_user.id)
@@ -153,7 +159,7 @@ def invite_friends(client, message):
         f"🌟 **دوستان خود را دعوت کنید!**\n\n"
         f"🔗 لینک دعوت شما:\n{invite_link}\n\n"
         "✅ به ازای هر دوستی که از لینک شما استفاده کند، 1 امتیاز دریافت خواهید کرد."
-    )
+    )        
 
 # خروج از ربات
 @app.on_message(filters.text & filters.regex("🔚 خروج"))
