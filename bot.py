@@ -15,6 +15,7 @@ APP_HASH = "740efc27f273ac589176b85853ef8088"  # App Hash تلگرام
 
 # تعریف دیکشنری برای ذخیره پروفایل کاربران
 user_profiles = {}
+save_profiles = {}
 
 # راه‌اندازی 
 app = Client("candletory_bot", bot_token=API_TOKEN, api_id=APP_ID, api_hash=APP_HASH)
