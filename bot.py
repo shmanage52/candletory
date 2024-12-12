@@ -29,31 +29,33 @@ def save_profiles(profiles):
 
 user_profiles = load_profiles()
 
-# ایجاد پروفایل کاربر
 @app.on_message(filters.command("start"))
 def start(client, message):
     user_id = message.from_user.id
+
+    # بررسی یا ایجاد پروفایل کاربر
     if str(user_id) not in user_profiles:
         user_profiles[str(user_id)] = {
             "name": message.from_user.first_name,
             "username": message.from_user.username,
-            "is_premium": False,
+            "points": 0,
             "joined_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         }
         save_profiles(user_profiles)
 
     message.reply_text(
         f"👋 خوش آمدید {message.from_user.first_name}!\n"
-            "قدرت تجارت هوشمند را در نوک انگشتان خود آزاد کنید. 📱💹\n\n"
-        "🔻لطفاً یکی از گزینه‌های زیر را انتخاب کنید:🔻",
+        "از منوی زیر استفاده کنید:",
         reply_markup=ReplyKeyboardMarkup(
             [
                 [KeyboardButton("📡 دریافت اطلاعات API"), KeyboardButton("💳 اشتراک VIP")],
-                [KeyboardButton("👤 پروفایل من"), KeyboardButton("🔚 خروج")]
+                [KeyboardButton("👤 پروفایل من"), KeyboardButton("📨 دعوت از دوستان")],
+                [KeyboardButton("🔚 خروج")]
             ],
             resize_keyboard=True
         )
     )
+
 
 # نمایش پروفایل کاربر
 @app.on_message(filters.text & filters.regex("👤 پروفایل من"))
@@ -110,8 +112,8 @@ def fetch_api_data(client, message):
     except Exception as e:
         message.reply_text(f"❌ خطای اتصال: {str(e)}")
 
-# دعوت دوستان
-@app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
+# 📨 دعوت از دوستان"
+@app.on_message(filters.text & filters.regex("📨 دعوت از دوستان")
 def invite_friends(client, message):
     user_id = str(message.from_user.id)
     invite_link = f"https://t.me/candletory_bot?start={user_id}"  # جایگزین با نام کاربری ربات
