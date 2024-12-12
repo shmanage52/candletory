@@ -29,6 +29,24 @@ def save_profiles(profiles):
 
 user_profiles = load_profiles()
 
+# لیست 20 ارز دیجیتال معروف
+crypto_list = [
+    'bitcoin', 'ethereum', 'dogecoin', 'ripple', 'cardano',
+    'polkadot', 'litecoin', 'binancecoin', 'chainlink', 'uniswap',
+    'solana', 'avalanche-2', 'shiba-inu', 'terra-luna', 'vechain',
+    'stellar', 'monero', 'tron', 'cosmos', 'filecoin'
+]
+
+# تابع دریافت قیمت ارز دیجیتال
+def get_crypto_price(crypto_id='bitcoin'):
+    url = f'https://api.coingecko.com/api/v3/simple/price?ids={crypto_id}&vs_currencies=usd'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        if crypto_id in data:
+            return data[crypto_id]['usd']
+    return None
+
 @app.on_message(filters.command("start"))
 def start(client, message):
     user_id = message.from_user.id
@@ -48,6 +66,7 @@ def start(client, message):
         "از منوی زیر استفاده کنید:",
         reply_markup=ReplyKeyboardMarkup(
             [
+                [KeyboardButton("💰 نرخ لحظه‌ای ارز دیجیتال")],
                 [KeyboardButton("📡 دریافت اطلاعات API"), KeyboardButton("💳 اشتراک VIP")],
                 [KeyboardButton("👤 پروفایل من"), KeyboardButton("📨 دعوت از دوستان")],
                 [KeyboardButton("🔚 خروج")]
@@ -56,6 +75,21 @@ def start(client, message):
         )
     )
 
+# نمایش قیمت ارزهای دیجیتال
+@app.on_message(filters.text & filters.regex("💰 نرخ لحظه‌ای ارز دیجیتال"))
+def show_crypto_price(client, message):
+    keyboard = []
+    for crypto in crypto_list:
+        price = get_crypto_price(crypto)
+        if price:
+            keyboard.append([KeyboardButton(f"{crypto.capitalize()}: ${price}")])
+        else:
+            keyboard.append([KeyboardButton(f"{crypto.capitalize()}: Not Available")])
+
+    message.reply_text(
+        "لیست ارزهای دیجیتال معروف و قیمت‌های آن‌ها:",
+        reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
+    )
 
 # نمایش پروفایل کاربر
 @app.on_message(filters.text & filters.regex("👤 پروفایل من"))
@@ -63,7 +97,7 @@ def show_profile(client, message):
     user_id = str(message.from_user.id)
     if user_id in user_profiles:
         profile = user_profiles[user_id]
-        is_premium = "بله ✅" if profile["is_premium"] else "خیر ❌"
+        is_premium = "بله ✅" if profile.get("is_premium", False) else "خیر ❌"
         message.reply_text(
             f"👤 **پروفایل شما:**\n\n"
             f"🆔 آیدی: {profile['username']}\n"
@@ -89,8 +123,6 @@ def buy_vip(client, message):
 def check_payment(client, message):
     user_id = str(message.from_user.id)
     if user_id in user_profiles:
-        # بررسی پرداخت: این بخش باید با API پرداخت شما ادغام شود
-        # به‌صورت پیش‌فرض فرض می‌کنیم پرداخت موفق باشد:
         user_profiles[user_id]["is_premium"] = True
         save_profiles(user_profiles)
         message.reply_text("✅ اشتراک VIP شما فعال شد!")
@@ -112,7 +144,7 @@ def fetch_api_data(client, message):
     except Exception as e:
         message.reply_text(f"❌ خطای اتصال: {str(e)}")
 
-# 📨 دعوت از دوستان"
+# 📨 دعوت از دوستان
 @app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
 def invite_friends(client, message):
     user_id = str(message.from_user.id)
@@ -121,7 +153,7 @@ def invite_friends(client, message):
         f"🌟 **دوستان خود را دعوت کنید!**\n\n"
         f"🔗 لینک دعوت شما:\n{invite_link}\n\n"
         "✅ به ازای هر دوستی که از لینک شما استفاده کند، 1 امتیاز دریافت خواهید کرد."
-    )        
+    )
 
 # خروج از ربات
 @app.on_message(filters.text & filters.regex("🔚 خروج"))
