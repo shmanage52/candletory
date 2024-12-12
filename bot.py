@@ -113,7 +113,7 @@ def fetch_api_data(client, message):
         message.reply_text(f"❌ خطای اتصال: {str(e)}")
 
 # 📨 دعوت از دوستان"
-@app.on_message(filters.text & filters.regex("📨 دعوت از دوستان")
+@app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
 def invite_friends(client, message):
     user_id = str(message.from_user.id)
     invite_link = f"https://t.me/candletory_bot?start={user_id}"  # جایگزین با نام کاربری ربات
