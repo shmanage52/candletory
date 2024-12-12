@@ -62,7 +62,7 @@ def plot_price_chart(prices, crypto_name):
 @app.on_message(filters.command("start"))
 def start(client, message):
     keyboard = [
-        [KeyboardButton("💱 نرخ لحظه ای ارز دیجیتال")]
+        [KeyboardButton("💱 نرخ لحظه ای ارز دیجیتال")],
         [KeyboardButton("📡 دریافت اطلاعات API"), KeyboardButton("💳 اشتراک VIP")],
         [KeyboardButton("👤 پروفایل من"), KeyboardButton("📨 دعوت از دوستان")],
         [KeyboardButton("🔚 خروج")],
