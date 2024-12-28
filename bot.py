@@ -23,9 +23,11 @@ save_profiles = {}
 app = Client("candletory_bot", bot_token=API_TOKEN, api_id=APP_ID, api_hash=APP_HASH)
 
 
-@app.on_message(filters.text & filters.regex("🔙 بازگشت به منو اصلی"))
-def back_to_main_menu(client, message):
-    start(client, message)  # فراخوانی دستور /start
+# تابع برای دکمه‌های بازگشت به منوی اصلی
+def add_back_to_main_menu(buttons):
+    back_button = [KeyboardButton("🔙 بازگشت به منوی اصلی")]
+    buttons.append(back_button)  # دکمه "بازگشت به منوی اصلی" را به انتهای دکمه‌ها اضافه می‌کند
+    return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
 
 # لیست ارزهای دیجیتال
 crypto_list = ['bitcoin', 'ethereum', 'dogecoin', 'litecoin', 'ripple', 'cardano', 'polkadot', 'solana', 'shiba-inu', 'binancecoin', 'tron', 'uniswap', 'chainlink', 'monero', 'vechain', 'tether', 'stellar', 'aave', 'sushi']
