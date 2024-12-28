@@ -1,12 +1,14 @@
 import time
 import requests
 import json
+import yfinance as  yf  
 from pyrogram import Client, filters
 from pyrogram.types import ReplyKeyboardMarkup, KeyboardButton
 from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 from io import BytesIO
+
 
 # اطلاعات 
 API_TOKEN = "7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ"  # جایگزین کنید با کلید API خود
@@ -26,7 +28,8 @@ def back_to_main_menu(client, message):
     start(client, message)  # فراخوانی دستور /start
 
 # لیست ارزهای دیجیتال
-crypto_list = ['bitcoin', 'ethereum', 'dogecoin', 'litecoin', 'ripple', 'cardano', 'polkadot', 'solana', 'shiba-inu', 'binancecoin', 'tron', 'uniswap', 'chainlink', 'monero', 'vechain', 'tether', 'stellar', 'aave', 'sushi', 'dogecoin']
+
+
 
 # تابع برای دریافت قیمت لحظه‌ای ارز
 def get_crypto_price(crypto):
@@ -186,7 +189,7 @@ def show_profile(client, message):
 @app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
 def invite_friends(client, message):
     user_id = str(message.from_user.id)
-    invite_link = f"https://t.me/YOUR_BOT_USERNAME?start={user_id}"  # جایگزین با نام کاربری ربات
+    invite_link = f"https://t.me/candletory_bot?start={user_id}"  # جایگزین با نام کاربری ربات
     buttons = [
         [KeyboardButton("👥 بررسی دعوت‌ها")],  # دکمه‌های اضافی
     ]
@@ -203,7 +206,7 @@ def buy_vip(client, message):
     message.reply_text(
         "🌟 **اشتراک VIP:**\n"
         "برای فعال‌سازی اشتراک VIP، پرداخت خود را از طریق لینک زیر انجام دهید:\n"
-        "[لینک پرداخت](https://example.com)\n\n"
+        "[لینک پرداخت](https://candletory.com/pay)\n\n"
         "پس از پرداخت، رسید خود را ارسال کنید."
     )
 
