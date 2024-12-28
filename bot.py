@@ -1,4 +1,5 @@
 import time
+from turtle import pd
 import requests
 import json
 from pyrogram import Client, filters
@@ -205,7 +206,7 @@ def show_profile(client, message):
 
 # تابع برای دکمه‌های بازگشت به منوی اصلی
 def add_back_to_main_menu(buttons):
-    return InlineKeyboardMarkup(buttons)
+    return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
 
 # دعوت از دوستان
 @app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
@@ -213,7 +214,7 @@ def invite_friends(client, message):
     user_id = str(message.from_user.id)
     invite_link = f"https://t.me/candletory_bot?start={user_id}"  # جایگزین با نام کاربری ربات
     buttons = [
-        [InlineKeyboardButton("👥 بررسی دعوت‌ها", callback_data="check_invites")],  # دکمه‌های اینلاین
+        [KeyboardButton("👥 بررسی دعوت‌ها")]  # دکمه شیشه‌ای (کیبورد معمولی)
     ]
     message.reply_text(
         f"🌟 **دوستان خود را دعوت کنید!**\n\n"
@@ -221,7 +222,6 @@ def invite_friends(client, message):
         "✅ به ازای هر دوستی که از لینک شما استفاده کند، 1 امتیاز دریافت خواهید کرد.",
         reply_markup=add_back_to_main_menu(buttons)  # افزودن دکمه‌ها به پیام
     )
-
 # پرداخت برای اشتراک VIP
 @app.on_message(filters.text & filters.regex("💳 اشتراک VIP"))
 def buy_vip(client, message):
