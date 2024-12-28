@@ -27,45 +27,63 @@ def back_to_main_menu(client, message):
     start(client, message)  # فراخوانی دستور /start
 
 # لیست ارزهای دیجیتال
-crypto_list = ['bitcoin', 'ethereum', 'dogecoin', 'litecoin', 'ripple', 'cardano', 'polkadot', 'solana', 'shiba-inu', 'binancecoin', 'tron', 'uniswap', 'chainlink', 'monero', 'vechain', 'tether', 'stellar', 'aave', 'sushi', 'dogecoin']
-
-
+crypto_list = ['bitcoin', 'ethereum', 'dogecoin', 'litecoin', 'ripple', 'cardano', 'polkadot', 'solana', 'shiba-inu', 'binancecoin', 'tron', 'uniswap', 'chainlink', 'monero', 'vechain', 'tether', 'stellar', 'aave', 'sushi']
 
 # تابع برای دریافت قیمت لحظه‌ای ارز
 def get_crypto_price(crypto):
     url = f"https://api.coingecko.com/api/v3/simple/price?ids={crypto}&vs_currencies=usd"
     response = requests.get(url)
-    data = response.json()
-    if crypto in data:
-        return data[crypto]['usd']
-    else:
-        return None
+    if response.status_code == 200:
+        data = response.json()
+        if crypto in data:
+            return data[crypto]['usd']
+    return None
 
 # تابع برای دریافت قیمت تاریخچه‌ای و رسم نمودار
 def get_price_history(crypto):
     url = f"https://api.coingecko.com/api/v3/coins/{crypto}/market_chart?vs_currency=usd&days=7"
     response = requests.get(url)
-    data = response.json()
-    if 'prices' in data:
-        prices = [item[1] for item in data['prices']]
-        return prices
-    return []
+    if response.status_code == 200:
+        data = response.json()
+        if 'prices' in data:
+            prices = data['prices']
+            dates = [item[0] for item in prices]  # استخراج تاریخ‌ها
+            values = [item[1] for item in prices]  # استخراج قیمت‌ها
+            return dates, values
+    return [], []
 
 # تابع برای رسم نمودار
-def plot_price_chart(prices, crypto_name):
+def plot_price_chart(dates, prices, crypto_name):
+    # تبدیل زمان Unix به فرمت خوانا
+    formatted_dates = [pd.to_datetime(date, unit='ms').strftime('%Y-%m-%d') for date in dates]
+
     plt.figure(figsize=(10, 6))
-    plt.plot(prices, label=f"{crypto_name} Price", color='blue')
+    plt.plot(formatted_dates, prices, label=f"{crypto_name} Price", color='blue')
     plt.title(f"نمودار قیمت {crypto_name} در 7 روز گذشته")
-    plt.xlabel("روزها")
+    plt.xlabel("تاریخ")
     plt.ylabel("قیمت (USD)")
+    plt.xticks(rotation=45)  # چرخش تاریخ‌ها برای خوانایی بهتر
     plt.legend()
     plt.grid(True)
 
     # ذخیره نمودار به صورت تصویر
     img = BytesIO()
     plt.savefig(img, format='png')
+    plt.close()  # پاکسازی حافظه برای نمودارهای بعدی
     img.seek(0)
     return img
+
+# تست کد
+if __name__ == "__main__":
+    crypto = "bitcoin"
+    dates, prices = get_price_history(crypto)
+    if dates and prices:
+        img = plot_price_chart(dates, prices, crypto)
+        with open(f"{crypto}_chart.png", "wb") as f:
+            f.write(img.getbuffer())
+        print(f"نمودار قیمت {crypto} ذخیره شد.")
+    else:
+        print("خطا در دریافت داده‌ها.")
 
 # نمایش لیست منوها به کاربر
 @app.on_message(filters.command("start"))
