@@ -206,24 +206,37 @@ def show_profile(client, message):
         print(f"Profile not found for user: {user_id}")  # لاگ عدم وجود پروفایل
         message.reply_text("❌ پروفایل شما یافت نشد. لطفاً دستور /start را بزنید.")
 
-# تابع برای دکمه‌های بازگشت به منوی اصلی
-def add_back_to_main_menu(buttons):
-    return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
 
 # دعوت از دوستان
 @app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
 def invite_friends(client, message):
     user_id = str(message.from_user.id)
-    invite_link = f"https://t.me/candletory_bot?start={user_id}"  # جایگزین با نام کاربری ربات
+    invite_link = f"https://t.me/candletory_bot?start={user_id}"  # لینک دعوت
     buttons = [
-        [KeyboardButton("👥 بررسی دعوت‌ها")]  # دکمه شیشه‌ای (کیبورد معمولی)
+        [KeyboardButton("👥 بررسی دعوت‌ها")]  # دکمه شیشه‌ای
     ]
     message.reply_text(
         f"🌟 **دوستان خود را دعوت کنید!**\n\n"
         f"🔗 لینک دعوت شما:\n{invite_link}\n\n"
         "✅ به ازای هر دوستی که از لینک شما استفاده کند، 1 امتیاز دریافت خواهید کرد.",
-        reply_markup=add_back_to_main_menu(buttons)  # افزودن دکمه‌ها به پیام
+        reply_markup=add_back_to_main_menu(buttons)  # افزودن دکمه‌ها
     )
+
+# هنگامی که کاربر روی دکمه "بازگشت به منوی اصلی" کلیک می‌کند
+@app.on_message(filters.text & filters.regex("🔙 بازگشت به منوی اصلی"))
+def return_to_main_menu(client, message):
+    buttons = [
+        [KeyboardButton("📨 دعوت از دوستان")],
+        [KeyboardButton("📊 وضعیت امتیازات")]
+    ]
+    message.reply_text(
+        "👋 شما به منوی اصلی برگشتید! لطفاً یکی از گزینه‌ها را انتخاب کنید.",
+        reply_markup=add_back_to_main_menu(buttons)
+    )
+
+if __name__ == "__main__":
+    app.run()
+    
 # پرداخت برای اشتراک VIP
 @app.on_message(filters.text & filters.regex("💳 اشتراک VIP"))
 def buy_vip(client, message):
