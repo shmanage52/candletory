@@ -1,7 +1,6 @@
 import time
 import requests
 import json
-import yfinance as  yf  
 from pyrogram import Client, filters
 from pyrogram.types import ReplyKeyboardMarkup, KeyboardButton
 from datetime import datetime
@@ -28,6 +27,7 @@ def back_to_main_menu(client, message):
     start(client, message)  # فراخوانی دستور /start
 
 # لیست ارزهای دیجیتال
+crypto_list = ['bitcoin', 'ethereum', 'dogecoin', 'litecoin', 'ripple', 'cardano', 'polkadot', 'solana', 'shiba-inu', 'binancecoin', 'tron', 'uniswap', 'chainlink', 'monero', 'vechain', 'tether', 'stellar', 'aave', 'sushi', 'dogecoin']
 
 
 
