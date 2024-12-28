@@ -135,7 +135,7 @@ def start(client, message):
             user_profiles[referrer_id]["points"] += 1
             save_profiles(user_profiles)
 
-    # ایجاد پروفایل جدید
+# ایجاد پروفایل جدید اگر وجود نداشته باشد
     if str(user_id) not in user_profiles:
         user_profiles[str(user_id)] = {
             "name": message.from_user.first_name,
@@ -144,7 +144,7 @@ def start(client, message):
             "joined_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "is_premium": False
         }
-        save_profiles(user_profiles)
+        save_profiles(user_profiles)  # ذخیره پروفایل در فایل
 
     message.reply_text(
         f"👋 خوش آمدید {message.from_user.first_name}!\n"
@@ -177,9 +177,9 @@ def show_profile(client, message):
             f"⭐ امتیازات: {profile['points']}\n"
             f"🌟 اشتراک VIP: {is_premium}\n"
             f"⏰ تاریخ عضویت: {profile['joined_at']}",
-            reply_markup=add_back_to_main_menu(buttons)
         )
     else:
+        print(f"Profile not found for user: {user_id}")  # لاگ عدم وجود پروفایل
         message.reply_text("❌ پروفایل شما یافت نشد. لطفاً دستور /start را بزنید.")
 
 # دعوت از دوستان
