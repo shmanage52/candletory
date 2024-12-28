@@ -28,7 +28,18 @@ def add_back_to_main_menu(buttons):
     back_button = [KeyboardButton("🔙 بازگشت به منوی اصلی")]
     buttons.append(back_button)  # دکمه "بازگشت به منوی اصلی" را به انتهای دکمه‌ها اضافه می‌کند
     return ReplyKeyboardMarkup(buttons, resize_keyboard=True)
-
+# منوی اصلی
+@app.on_message(filters.text & filters.regex("📋 منوی اصلی"))
+def main_menu(client, message):
+    buttons = [
+        [KeyboardButton("📨 دعوت از دوستان")],
+        [KeyboardButton("📊 وضعیت امتیازات")]
+    ]
+    message.reply_text(
+        "👋 خوش آمدید به ربات ما! لطفاً یکی از گزینه‌ها را انتخاب کنید.",
+        reply_markup=add_back_to_main_menu(buttons)
+    )
+    
 # لیست ارزهای دیجیتال
 crypto_list = ['bitcoin', 'ethereum', 'dogecoin', 'litecoin', 'ripple', 'cardano', 'polkadot', 'solana', 'shiba-inu', 'binancecoin', 'tron', 'uniswap', 'chainlink', 'monero', 'vechain', 'tether', 'stellar', 'aave', 'sushi']
 
@@ -236,7 +247,7 @@ def return_to_main_menu(client, message):
 
 if __name__ == "__main__":
     app.run()
-    
+
 # پرداخت برای اشتراک VIP
 @app.on_message(filters.text & filters.regex("💳 اشتراک VIP"))
 def buy_vip(client, message):
