@@ -203,19 +203,23 @@ def show_profile(client, message):
         print(f"Profile not found for user: {user_id}")  # لاگ عدم وجود پروفایل
         message.reply_text("❌ پروفایل شما یافت نشد. لطفاً دستور /start را بزنید.")
 
+# تابع برای دکمه‌های بازگشت به منوی اصلی
+def add_back_to_main_menu(buttons):
+    return InlineKeyboardMarkup(buttons)
+
 # دعوت از دوستان
 @app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
 def invite_friends(client, message):
     user_id = str(message.from_user.id)
     invite_link = f"https://t.me/candletory_bot?start={user_id}"  # جایگزین با نام کاربری ربات
     buttons = [
-        [KeyboardButton("👥 بررسی دعوت‌ها")],  # دکمه‌های اضافی
+        [InlineKeyboardButton("👥 بررسی دعوت‌ها", callback_data="check_invites")],  # دکمه‌های اینلاین
     ]
     message.reply_text(
         f"🌟 **دوستان خود را دعوت کنید!**\n\n"
         f"🔗 لینک دعوت شما:\n{invite_link}\n\n"
         "✅ به ازای هر دوستی که از لینک شما استفاده کند، 1 امتیاز دریافت خواهید کرد.",
-        reply_markup=add_back_to_main_menu(buttons)
+        reply_markup=add_back_to_main_menu(buttons)  # افزودن دکمه‌ها به پیام
     )
 
 # پرداخت برای اشتراک VIP
