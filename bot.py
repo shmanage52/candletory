@@ -77,6 +77,7 @@ async def fetch_prices():
 async def handle_price_button(client, message):
     prices = await fetch_prices()
     if not prices:
+        print("Prices is None or Empty.")  # چاپ خطا
         await message.reply_text("❌ خطا در دریافت قیمت‌ها.")
         return
 
