@@ -16,6 +16,8 @@ app = Client("candletory_bot", bot_token=API_TOKEN, api_id=APP_ID, api_hash=APP_
 
 # لیست ارزهای دیجیتال
 SYMBOLS = [
+    {"symbol": "btc", "name": "Bitcoin"},
+    {"symbol": "ltc", "name": "Litecoin"},
     {"symbol": "btc-usdt", "name": "بیت‌کوین"},
     {"symbol": "eth-usdt", "name": "اتریوم"},
     {"symbol": "xrp-usdt", "name": "ریپل"},
@@ -56,7 +58,7 @@ def main_menu():
 async def fetch_prices():
     url = "https://api.nobitex.ir/market/global-stats"
     async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
+        async with session.post(url) as response:
             if response.status != 200:
                 return None
             data = await response.json()
@@ -65,7 +67,7 @@ async def fetch_prices():
                 key = symbol["symbol"]
                 if key in data:
                     prices[key] = {
-                        "price": float(data[key]["last"]),
+                        "price": float(data[key]["kraken"]["price"]),
                         "name": symbol["name"],
                     }
             return prices
