@@ -16,15 +16,8 @@ app = Client("candletory_bot", bot_token=API_TOKEN, api_id=APP_ID, api_hash=APP_
 
 # لیست ارزهای دیجیتال
 SYMBOLS = [
-    {"symbol": "btc", "name": "Bitcoin"},
-    {"symbol": "ltc", "name": "Litecoin"},
-    {"symbol": "btc-usdt", "name": "بیت‌کوین"},
-    {"symbol": "eth-usdt", "name": "اتریوم"},
-    {"symbol": "xrp-usdt", "name": "ریپل"},
-    {"symbol": "ada-usdt", "name": "کاردانو"},
-    {"symbol": "doge-usdt", "name": "دوج‌کوین"},
-    {"symbol": "trx-usdt", "name": "ترون"},
-    {"symbol": "bnb-usdt", "name": "بی ان بی"},
+    {"symbol": "mkr", "name": "Bitcoin"},
+    
 ]
 
 # توابع ذخیره و بارگذاری پروفایل کاربران
@@ -71,7 +64,7 @@ async def fetch_prices():
                     try:
                         # پردازش قیمت از ساختار داده‌ها
                         prices[key] = {
-                            "price": float(data[key]["kraken"]["price"]),
+                            "price": float(data[key]["binance"]["price"]),
                             "name": symbol["name"],
                         }
                     except KeyError:
