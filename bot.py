@@ -60,15 +60,22 @@ async def fetch_prices():
     async with aiohttp.ClientSession() as session:
         async with session.post(url) as response:
             if response.status != 200:
+                print(f"HTTP Error: {response.status}")  # چاپ وضعیت HTTP
                 return None
             data = await response.json()
             print(data)  # چاپ داده‌ها برای بررسی ساختار
             prices = {}
-            for key, value in data.items():
-                if key != "status":  # بررسی کلیدهای اصلی غیر از "status"
+            for symbol in SYMBOLS:
+                key = symbol["symbol"]
+                if key in data:
                     try:
-                        prices[key] = float(value["kraken"]["price"])
+                        # پردازش قیمت از ساختار داده‌ها
+                        prices[key] = {
+                            "price": float(data[key]["kraken"]["price"]),
+                            "name": symbol["name"],
+                        }
                     except KeyError:
+                        print(f"KeyError for symbol: {key}")
                         continue
             return prices
 
@@ -82,8 +89,10 @@ async def handle_price_button(client, message):
         return
 
     message_text = "💹 <b>قیمت‌های ارزهای دیجیتال:</b>\n\n"
-    for symbol, data in prices.items():
-        message_text += f"🔹 {data['name']}: {data['price']} USDT\n"
+    message_text = "💹 <b>قیمت‌های ارزهای دیجیتال:</b>\n\n"
+    for key, value in prices.items():
+        message_text += f"🔹 {value['name']}: {value['price']} USDT\n"
+
     message_text += f"\n⏰ <i>آخرین به‌روزرسانی: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>"
     await message.reply_text(message_text, parse_mode="HTML")
 
