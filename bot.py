@@ -62,17 +62,14 @@ async def fetch_prices():
             if response.status != 200:
                 return None
             data = await response.json()
+            print(data)  # چاپ داده‌ها برای بررسی ساختار
             prices = {}
-            for symbol in SYMBOLS:
-                 # بررسی ساختار دقیق و نمایش قیمت‌ها
+            for key, value in data.items():
+                if key != "status":  # بررسی کلیدهای اصلی غیر از "status"
                     try:
-                        price = data[key]["kraken"]["price"]
-                        prices[key] = {
-                            "price": float(price),
-                            "name": symbol["name"],
-                        }
+                        prices[key] = float(value["kraken"]["price"])
                     except KeyError:
-                        continue  # اگر کلید مورد نظر وجود نداشت، از آن رد می‌شود
+                        continue
             return prices
 
 # دکمه قیمت لحظه‌ای ارزها
