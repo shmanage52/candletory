@@ -21,7 +21,8 @@ SYMBOLS = [
     {"symbol": "xrp-usdt", "name": "ریپل"},
     {"symbol": "ada-usdt", "name": "کاردانو"},
     {"symbol": "doge-usdt", "name": "دوج‌کوین"},
-    {"symbol": "trx-usdt", "name": "ترون"}
+    {"symbol": "trx-usdt", "name": "ترون"},
+    {"symbol": "bnb-usdt", "name": "بی ان بی"},
 ]
 
 # توابع ذخیره و بارگذاری پروفایل کاربران
