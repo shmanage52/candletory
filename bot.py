@@ -54,7 +54,7 @@ def main_menu():
 
 # تابع دریافت قیمت ارزها
 async def fetch_prices():
-    url = "https://api.nobitex.ir/market/stats"
+    url = "https://api.nobitex.ir/market/global-stats"
     async with aiohttp.ClientSession() as session:
         async with session.get(url) as response:
             if response.status != 200:
