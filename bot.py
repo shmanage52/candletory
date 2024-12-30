@@ -64,12 +64,15 @@ async def fetch_prices():
             data = await response.json()
             prices = {}
             for symbol in SYMBOLS:
-                key = symbol["symbol"]
-                if key in data:
-                    prices[key] = {
-                        "price": float(data[key]["kraken"]["price"]),
-                        "name": symbol["name"],
-                    }
+                 # بررسی ساختار دقیق و نمایش قیمت‌ها
+                    try:
+                        price = data[key]["kraken"]["price"]
+                        prices[key] = {
+                            "price": float(price),
+                            "name": symbol["name"],
+                        }
+                    except KeyError:
+                        continue  # اگر کلید مورد نظر وجود نداشت، از آن رد می‌شود
             return prices
 
 # دکمه قیمت لحظه‌ای ارزها
