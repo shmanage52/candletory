@@ -8,6 +8,9 @@ from datetime import datetime
 import matplotlib.pyplot as plt
 import numpy as np
 from io import BytesIO
+import asyncio
+import aiohttp
+from datetime import datetime
 
 
 # اطلاعات 
@@ -186,9 +189,9 @@ def start(client, message):
         "از منوی زیر استفاده کنید:",
         reply_markup=ReplyKeyboardMarkup(
             [
-                [KeyboardButton("📡 دریافت اطلاعات API"), KeyboardButton("💳 اشتراک VIP")],
-                [KeyboardButton("👤 پروفایل من"), KeyboardButton("📨 دعوت از دوستان")],
-                [KeyboardButton("🔚 خروج")]
+                [KeyboardButton("📡 قیمت لحظه‌ای ارزها")],  # دکمه جدید
+                [KeyboardButton("💳 اشتراک VIP"), KeyboardButton("👤 پروفایل من")],
+                [KeyboardButton("📨 دعوت از دوستان"), KeyboardButton("🔚 خروج")]
             ],
             resize_keyboard=True
         )
@@ -290,6 +293,89 @@ def fetch_api_data(client, message):
 @app.on_message(filters.text & filters.regex("🔚 خروج"))
 def exit_bot(client, message):
     message.reply_text("🚪 از ربات خارج شدید. برای بازگشت، /start را بزنید.")
+
+#//////////////////////////////////////////////////////////
+
+#Baraye nerkh lahzeyi
+
+# لیست ارزها
+SYMBOLS = [
+    
+    {"symbol": "Tether", "name": "تتر"},
+    {"symbol": "btc-usdt", "name": "بیت‌کوین"},
+    {"symbol": "ETHUSDT", "name": "اتریوم"},
+    {"symbol": "XRPUSDT", "name": "ریپل"},
+    {"symbol": "ADAUSDT", "name": "کاردانو"},
+    {"symbol": "SHIBA", "name": "شیبا"},    
+    {"symbol": "DOGE", "name": "دوج کوین"},
+    {"symbol": "TRX", "name": "ترون"},
+    # ارزهای دیگر را اضافه کنید
+]
+
+# تابع برای دریافت قیمت‌ها از Nobitex یا منبع دیگر
+async def fetch_prices():
+    url = "https://api.nobitex.ir/market/stats"
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status != 200:
+                return None
+            data = await response.json()
+            prices = {}
+            for symbol in SYMBOLS:
+                key = symbol["symbol"]
+                if key in data:
+                    prices[key] = {
+                        "price": float(data[key]["last"]),
+                        "name": symbol["name"],
+                    }
+            return prices
+
+# تابع مرتبط با دکمه "قیمت لحظه‌ای ارزها"
+@app.on_message(filters.text & filters.regex("📡 قیمت لحظه‌ای ارزها"))
+async def handle_price_button(client, message):
+    prices = await fetch_prices()
+    if not prices:
+        await message.reply_text("❌ خطا در دریافت قیمت‌ها.")
+        return
+
+    message_text = "💹 <b>قیمت‌های ارزهای دیجیتال:</b>\n\n"
+    for symbol, data in prices.items():
+        message_text += f"🔹 {data['name']}: {data['price']} USDT\n"
+    message_text += f"\n⏰ <i>آخرین به‌روزرسانی: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>"
+    await message.reply_text(message_text, parse_mode="HTML")
+
+# ارسال خودکار قیمت‌ها به کانال یا گروه
+async def post_prices_to_channel():
+    prices = await fetch_prices()
+    if not prices:
+        print("خطا در دریافت قیمت‌ها")
+        return
+
+    message = "💹 <b>قیمت‌های ارزهای دیجیتال:</b>\n\n"
+    for symbol, data in prices.items():
+        message += f"🔹 {data['name']}: {data['price']} USDT\n"
+    message += f"\n⏰ <i>آخرین به‌روزرسانی: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>"
+
+    async with aiohttp.ClientSession() as session:
+        url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
+        payload = {"chat_id": "@candletory", "text": message, "parse_mode": "HTML"}
+        async with session.post(url, json=payload) as response:
+            if response.status != 200:
+                print(f"خطا در ارسال پیام: {await response.text()}")
+
+# زمان‌بندی برای ارسال خودکار قیمت‌ها
+async def scheduler():
+    while True:
+        await post_prices_to_channel()
+        await asyncio.sleep(300)  # هر 5 دقیقه
+
+# اجرای زمان‌بند
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.create_task(scheduler())
+
+#//////////////////////////////////////////////////////////
+
 
 # اجرای ربات
 app.run()
