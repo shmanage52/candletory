@@ -4,8 +4,12 @@ import requests
 import datetime
 import pytz
 
-# Bot token
-TOKEN = '7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ'
+#  Application اطلاعات 
+API_TOKEN = "7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ"  # جایگزین کنید با کلید API خود
+APP_ID = 25709855  # App ID تلگرام
+APP_HASH = "740efc27f273ac589176b85853ef8088"  # App Hash تلگرام
+
+#app = Client("candletory_bot", bot_token=API_TOKEN, api_id=APP_ID, api_hash=APP_HASH)
 
 def start(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
