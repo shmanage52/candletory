@@ -1,172 +1,117 @@
-import asyncio
-import aiohttp
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
 import requests
-import json
-from datetime import datetime
-from pyrogram import Client, filters
-from pyrogram.types import ReplyKeyboardMarkup, KeyboardButton
+import datetime
+import pytz
 
+# Bot token
+TOKEN = '7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ'
 
-#  Application اطلاعات 
-API_TOKEN = "7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ"  # جایگزین کنید با کلید API خود
-APP_ID = 25709855  # App ID تلگرام
-APP_HASH = "740efc27f273ac589176b85853ef8088"  # App Hash تلگرام
+def start(update: Update, context: CallbackContext) -> None:
+    user = update.message.from_user
+    welcome_message = (
+        f"\U0001F44B خوش آمدید {user.first_name}! \n"
+        "این ربات CandleTory است. از منوی زیر برای دسترسی به امکانات مختلف استفاده کنید."
+    )
+    keyboard = [
+        [InlineKeyboardButton("\U0001F4B8 قیمت ارز و کریپتو", callback_data='crypto_prices')],
+        [InlineKeyboardButton("\U0001F947 قیمت طلا و سکه", callback_data='gold_prices')],
+        [InlineKeyboardButton("\U0001F4F0 اخبار فارکس", callback_data='forex_news')],
+        [InlineKeyboardButton("\U0001F464 پروفایل من", callback_data='my_profile')],
+        [InlineKeyboardButton("\U0001F517 اشتراک‌گذاری ربات", callback_data='share_bot')],
+        [InlineKeyboardButton("\U0001F4B0 خرید اشتراک VIP", callback_data='buy_vip')],
+        [InlineKeyboardButton("\U0001F310 افزودن ربات به گروه‌ها", callback_data='add_to_groups')],
+        [InlineKeyboardButton("\U0001F4C8 دریافت سیگنال‌های معاملاتی", callback_data='daily_signals')],
+        [InlineKeyboardButton("\U0001F570 زمان‌بندی جلسات", callback_data='session_timings')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    update.message.reply_text(welcome_message, reply_markup=reply_markup)
 
-app = Client("candletory_bot", bot_token=API_TOKEN, api_id=APP_ID, api_hash=APP_HASH)
+def handle_menu_selection(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
 
-# لیست ارزهای دیجیتال
-SYMBOLS = [
-    {"symbol": "mkr", "name": "Bitcoin"},
-    
-]
+    if query.data == 'crypto_prices':
+        data = get_crypto_prices()
+        query.edit_message_text(f"\U0001F4B8 {data}")
+    elif query.data == 'gold_prices':
+        data = get_gold_prices()
+        query.edit_message_text(f"\U0001F947 {data}")
+    elif query.data == 'forex_news':
+        data = get_forex_news()
+        query.edit_message_text(f"\U0001F4F0 {data}")
+    elif query.data == 'my_profile':
+        data = generate_profile(query.from_user)
+        query.edit_message_text(f"\U0001F464 {data}")
+    elif query.data == 'share_bot':
+        data = "این ربات را با دوستان خود به اشتراک بگذارید: @candletory_bot"
+        query.edit_message_text(f"\U0001F517 {data}")
+    elif query.data == 'buy_vip':
+        data = "برای خرید اشتراک VIP به این لینک مراجعه کنید: [اشتراک VIP](https://example.com)"
+        query.edit_message_text(f"\U0001F4B0 {data}", parse_mode="Markdown")
+    elif query.data == 'add_to_groups':
+        data = "برای افزودن ربات به گروه خود از این لینک استفاده کنید: [افزودن ربات](https://t.me/candletory_bot?startgroup=new)"
+        query.edit_message_text(f"\U0001F310 {data}", parse_mode="Markdown")
+    elif query.data == 'daily_signals':
+        data = "ویژگی سیگنال‌های روزانه به زودی فعال می‌شود!"
+        query.edit_message_text(f"\U0001F4C8 {data}")
+    elif query.data == 'session_timings':
+        data = get_session_timings()
+        query.edit_message_text(f"\U0001F570 {data}")
 
-# توابع ذخیره و بارگذاری پروفایل کاربران
-USER_DB = "user_profiles.json"
+def get_crypto_prices():
+    url = "https://studio.persianapi.com/api/general/crypto"
+    response = requests.get(url)
+    if response.ok:
+        return response.json().get('data', 'داده‌ای یافت نشد!')
+    return "خطا در دریافت قیمت ارز و کریپتو."
 
-def load_profiles():
-    try:
-        with open(USER_DB, "r") as file:
-            return json.load(file)
-    except FileNotFoundError:
-        return {}
+def get_gold_prices():
+    url_gold = "https://studio.persianapi.com/api/gold"
+    url_coin = "https://studio.persianapi.com/api/coin"
+    gold_response = requests.get(url_gold)
+    coin_response = requests.get(url_coin)
+    if gold_response.ok and coin_response.ok:
+        gold_data = gold_response.json().get('data', 'داده‌ای یافت نشد!')
+        coin_data = coin_response.json().get('data', 'داده‌ای یافت نشد!')
+        return f"\U0001F947 طلا: {gold_data}\n\U0001F4B0 سکه: {coin_data}"
+    return "خطا در دریافت قیمت طلا یا سکه."
 
-def save_profiles(profiles):
-    with open(USER_DB, "w") as file:
-        json.dump(profiles, file, indent=4)
+def get_forex_news():
+    url = "https://www.forexfactory.com/calendar"
+    response = requests.get(url)
+    # Simplified parsing example, real implementation would require HTML parsing (e.g., with BeautifulSoup)
+    if response.ok:
+        return "اخبار مهم فارکس با موفقیت دریافت شد."
+    return "خطا در دریافت اخبار فارکس."
 
-user_profiles = load_profiles()
-
-# منوی اصلی
-def main_menu():
-    return ReplyKeyboardMarkup(
-        [
-            [KeyboardButton("📡 قیمت لحظه‌ای ارزها")],
-            [KeyboardButton("💳 اشتراک VIP"), KeyboardButton("👤 پروفایل من")],
-            [KeyboardButton("📨 دعوت از دوستان"), KeyboardButton("🔚 خروج")]
-        ],
-        resize_keyboard=True
+def generate_profile(user):
+    return (
+        f"\U0001F464 پروفایل:\n"
+        f"نام: {user.first_name} {user.last_name or ''}\n"
+        f"نام کاربری: @{user.username}\n"
+        f"امتیاز: 0 (با دعوت دوستان یا افزودن ربات به گروه‌ها امتیاز کسب کنید!)"
     )
 
-# تابع دریافت قیمت ارزها
-async def fetch_prices():
-    url = "https://api.nobitex.ir/market/global-stats"
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url) as response:
-            if response.status != 200:
-                print(f"HTTP Error: {response.status}")  # چاپ وضعیت HTTP
-                return None
-            data = await response.json()
-            print(data)  # چاپ داده‌ها برای بررسی ساختار
-            prices = {}
-            for symbol in SYMBOLS:
-                key = symbol["symbol"]
-                if key in data:
-                    try:
-                        # پردازش قیمت از ساختار داده‌ها
-                        prices[key] = {
-                            "price": float(data[key]["binance"]["price"]),
-                            "name": symbol["name"],
-                        }
-                    except KeyError:
-                        print(f"KeyError for symbol: {key}")
-                        continue
-            return prices
-
-# دکمه قیمت لحظه‌ای ارزها
-@app.on_message(filters.text & filters.regex("📡 قیمت لحظه‌ای ارزها"))
-async def handle_price_button(client, message):
-    prices = await fetch_prices()
-    if not prices:
-        print("Prices is None or Empty.")  # چاپ خطا
-        await message.reply_text("❌ خطا در دریافت قیمت‌ها.")
-        return
-
-    message_text = "💹 <b>قیمت‌های ارزهای دیجیتال:</b>\n\n"
-    message_text = "💹 <b>قیمت‌های ارزهای دیجیتال:</b>\n\n"
-    for key, value in prices.items():
-        message_text += f"🔹 {value['name']}: {value['price']} USDT\n"
-
-    message_text += f"\n⏰ <i>آخرین به‌روزرسانی: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>"
-    await message.reply_text(message_text, parse_mode="HTML")
-
-# دکمه دعوت از دوستان
-@app.on_message(filters.text & filters.regex("📨 دعوت از دوستان"))
-def invite_friends(client, message):
-    user_id = str(message.from_user.id)
-    invite_link = f"https://t.me/candletory_bot?start={user_id}"
-    message.reply_text(
-        f"🌟 **دوستان خود را دعوت کنید!**\n\n"
-        f"🔗 لینک دعوت شما:\n{invite_link}\n\n"
-        "✅ به ازای هر دوستی که از لینک شما استفاده کند، 1 امتیاز دریافت خواهید کرد.",
-        reply_markup=main_menu()
+def get_session_timings():
+    iran_tz = pytz.timezone("Asia/Tehran")
+    now = datetime.datetime.now(iran_tz)
+    return (
+        f"\U0001F570 زمان‌بندی جلسات معاملاتی (به وقت ایران):\n"
+        f"زمان فعلی: {now.strftime('%Y-%m-%d %H:%M:%S')}\n"
+        "- آسیا: 3:00 صبح - 12:00 ظهر\n"
+        "- اروپا: 10:00 صبح - 6:30 عصر\n"
+        "- آمریکا: 4:30 عصر - 1:00 بامداد"
     )
 
-# نمایش پروفایل کاربر
-@app.on_message(filters.text & filters.regex("👤 پروفایل من"))
-def show_profile(client, message):
-    user_id = str(message.from_user.id)
-    if user_id in user_profiles:
-        profile = user_profiles[user_id]
-        is_premium = "بله ✅" if profile["is_premium"] else "خیر ❌"
-        message.reply_text(
-            f"👤 **پروفایل شما:**\n\n"
-            f"📛 نام: {profile['name']}\n"
-            f"🆔 آیدی: {profile['username']}\n"
-            f"⭐ امتیازات: {profile['points']}\n"
-            f"🌟 اشتراک VIP: {is_premium}\n"
-            f"⏰ تاریخ عضویت: {profile['joined_at']}",
-            reply_markup=main_menu()
-        )
-    else:
-        message.reply_text("❌ پروفایل شما یافت نشد. لطفاً دستور /start را بزنید.")
+def main():
+    updater = Updater(TOKEN)
 
-# ارسال خودکار قیمت‌ها
-async def post_prices_to_channel():
-    prices = await fetch_prices()
-    if not prices:
-        print("خطا در دریافت قیمت‌ها")
-        return
+    updater.dispatcher.add_handler(CommandHandler('start', start))
+    updater.dispatcher.add_handler(CallbackQueryHandler(handle_menu_selection))
 
-    message = "💹 <b>قیمت‌های ارزهای دیجیتال:</b>\n\n"
-    for symbol, data in prices.items():
-        message += f"🔹 {data['name']}: {data['price']} USDT\n"
-    message += f"\n⏰ <i>آخرین به‌روزرسانی: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</i>"
+    updater.start_polling()
+    updater.idle()
 
-    async with aiohttp.ClientSession() as session:
-        url = f"https://api.telegram.org/bot{API_TOKEN}/sendMessage"
-        payload = {"chat_id": "@candletory", "text": message, "parse_mode": "HTML"}
-        async with session.post(url, json=payload) as response:
-            if response.status != 200:
-                print(f"خطا در ارسال پیام: {await response.text()}")
-
-# زمان‌بندی ارسال خودکار
-async def scheduler():
-    while True:
-        await post_prices_to_channel()
-        await asyncio.sleep(300)  # هر 5 دقیقه
-
-# شروع ربات
-@app.on_message(filters.command("start"))
-def start(client, message):
-    user_id = message.from_user.id
-
-    if str(user_id) not in user_profiles:
-        user_profiles[str(user_id)] = {
-            "name": message.from_user.first_name,
-            "username": message.from_user.username,
-            "points": 0,
-            "joined_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-            "is_premium": False
-        }
-        save_profiles(user_profiles)
-
-    message.reply_text(
-        f"👋 خوش آمدید {message.from_user.first_name}!\n"
-        "از منوی زیر استفاده کنید:",
-        reply_markup=main_menu()
-    )
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.create_task(scheduler())
-    app.run()
+if __name__ == '__main__':
+    main()
