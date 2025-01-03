@@ -1,15 +1,12 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, filters
+from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, filters
 import requests
 import datetime
 import pytz
+from bs4 import BeautifulSoup
 
-#  Application اطلاعات 
-API_TOKEN = "7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ"  # جایگزین کنید با کلید API خود
-APP_ID = 25709855  # App ID تلگرام
-APP_HASH = "740efc27f273ac589176b85853ef8088"  # App Hash تلگرام
-
-#app = Client("candletory_bot", bot_token=API_TOKEN, api_id=APP_ID, api_hash=APP_HASH)
+# Bot token
+TOKEN = '7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ'
 
 def start(update: Update, context: CallbackContext) -> None:
     user = update.message.from_user
@@ -65,29 +62,40 @@ def handle_menu_selection(update: Update, context: CallbackContext) -> None:
 
 def get_crypto_prices():
     url = "https://studio.persianapi.com/api/general/crypto"
-    response = requests.get(url)
-    if response.ok:
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
         return response.json().get('data', 'داده‌ای یافت نشد!')
-    return "خطا در دریافت قیمت ارز و کریپتو."
+    except requests.RequestException as e:
+        return f"خطا در دریافت قیمت ارز و کریپتو: {e}"
 
 def get_gold_prices():
     url_gold = "https://studio.persianapi.com/api/gold"
     url_coin = "https://studio.persianapi.com/api/coin"
-    gold_response = requests.get(url_gold)
-    coin_response = requests.get(url_coin)
-    if gold_response.ok and coin_response.ok:
+    try:
+        gold_response = requests.get(url_gold)
+        coin_response = requests.get(url_coin)
+        gold_response.raise_for_status()
+        coin_response.raise_for_status()
         gold_data = gold_response.json().get('data', 'داده‌ای یافت نشد!')
         coin_data = coin_response.json().get('data', 'داده‌ای یافت نشد!')
         return f"\U0001F947 طلا: {gold_data}\n\U0001F4B0 سکه: {coin_data}"
-    return "خطا در دریافت قیمت طلا یا سکه."
+    except requests.RequestException as e:
+        return f"خطا در دریافت قیمت طلا یا سکه: {e}"
 
 def get_forex_news():
     url = "https://www.forexfactory.com/calendar"
-    response = requests.get(url)
-    # Simplified parsing example, real implementation would require HTML parsing (e.g., with BeautifulSoup)
-    if response.ok:
-        return "اخبار مهم فارکس با موفقیت دریافت شد."
-    return "خطا در دریافت اخبار فارکس."
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        soup = BeautifulSoup(response.text, 'html.parser')
+        news_items = soup.find_all('div', class_='calendar__event-title')
+        parsed_news = [item.get_text(strip=True) for item in news_items[:5]]
+        return "\n".join(parsed_news) if parsed_news else "داده‌ای یافت نشد!"
+    except requests.RequestException as e:
+        return f"خطا در دریافت اخبار فارکس: {e}"
+    except Exception as e:
+        return f"خطای غیرمنتظره در پردازش اخبار فارکس: {e}"
 
 def generate_profile(user):
     return (
@@ -109,13 +117,12 @@ def get_session_timings():
     )
 
 def main():
-    updater = Updater(TOKEN)
+    application = ApplicationBuilder().token(TOKEN).build()
 
-    updater.dispatcher.add_handler(CommandHandler('start', start))
-    updater.dispatcher.add_handler(CallbackQueryHandler(handle_menu_selection))
+    application.add_handler(CommandHandler('start', start))
+    application.add_handler(CallbackQueryHandler(handle_menu_selection))
 
-    updater.start_polling()
-    updater.idle()
+    application.run_polling()
 
 if __name__ == '__main__':
     main()
