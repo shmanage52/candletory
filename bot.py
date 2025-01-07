@@ -1,3 +1,5 @@
+pip install requests
+
 from telethon import TelegramClient, events, Button
 import requests
 import json
