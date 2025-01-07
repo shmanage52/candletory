@@ -84,5 +84,6 @@ async def callback(event):
         await event.answer("❌ دستور نامعتبر.")
 
 # اجرای ربات
-print("ربات با موفقیت راه‌اندازی شد!")
-bot.run_until_disconnected()
+#print("ربات با موفقیت راه‌اندازی شد!")
+#bot.run_until_disconnected()
+bot.run()
