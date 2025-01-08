@@ -1,3 +1,5 @@
+import asyncio
+from telethon import TelegramClient
 from telethon import TelegramClient, events, Button
 import requests
 import json
@@ -8,8 +10,21 @@ API_HASH = '740efc27f273ac589176b85853ef8088'
 BOT_TOKEN = '7575235119:AAGFR15l6OFkOq_8S05WXfTvoRuu4YCf0vQ'
 
 # ایجاد کلاینت تلگرام
-bot = TelegramClient('candletory_bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN)
+async def main():
+    # Initialize the TelegramClient
+    bot = TelegramClient('candletory_bot', API_ID, API_HASH)
 
+    # Start the bot with the bot token
+    await bot.start(bot_token=BOT_TOKEN)
+
+    print("Bot is running...")
+    # Keep the bot running until it is disconnected
+    await bot.run_until_disconnected()
+
+if __name__ == "__main__":
+    # Run the async main function inside an event loop
+    asyncio.run(main())
+    
 # پیام خوشامد
 WELCOME_MSG = """
 👋 خوش آمدید به ربات CandleTory!
