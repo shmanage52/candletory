@@ -35,7 +35,7 @@ async def main():
         buttons = [
             [Button.inline('📈 قیمت لحظه‌ای ارز و بازار کریپتو', b'crypto_prices')],
             [Button.inline('💰 قیمت طلا و سکه', b'gold_prices')],
-            [Button.inline('📰 اخبار مهم دنیای فارکس', b'forex_news')],
+            [Button.inline('💸 قیمت دلاو و ارز ', b'currency')],
             [Button.inline('👤 اطلاعات پروفایل من', b'profile')],
             [Button.inline('📤 اشتراک ربات با دوستان', b'share')],
             [Button.inline('✨ خرید اشتراک VIP', b'buy_vip')],
@@ -73,6 +73,16 @@ async def main():
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت طلا. لطفاً دوباره تلاش کنید.")
         
+        elif data == 'currency':
+            await event.answer("در حال دریافت قیمت‌ها ...")
+            response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
+            if response.status_code == 200:
+                prices = response.json()
+                gold_text = "\n".join([f"{item['name']}: {item['price']} ({item['time']}) ({item['change_percent']}%) " for item in prices.get('currency', [])])
+                await event.respond(f"💸 قیمت لحظه‌ای ارز:\n\n{gold_text}")
+            else:
+                await event.respond("خطا در دریافت اطلاعات قیمت طلا. لطفاً دوباره تلاش کنید.")
+
         elif data == 'profile':
             user_id = event.sender_id
             await event.edit(f"👤 اطلاعات پروفایل شما:\n\n🆔 ID: {user_id}\n🏆 امتیاز: 0\n✨ اشتراک VIP: فعال نیست")
