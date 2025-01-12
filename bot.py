@@ -12,8 +12,12 @@ bot = TelegramClient('candletory_bot', API_ID, API_HASH).start(bot_token=BOT_TOK
 
 # پیام خوشامد
 WELCOME_MSG = """
-👋 خوش آمدید به ربات CandleTory!
-لطفاً یکی از گزینه‌های زیر را انتخاب کنید:
+Hi, I'm Candletory Bot! /n
+Please select a button and use my features. /n
+Add me to your groups... ♥/n
+/n
+*By the way */n
+I love it when you invite your friends♥
 """
 
 # هندلر برای پیام‌های ورودی
@@ -84,4 +88,9 @@ async def callback(event):
 # اجرای ربات
 #print("ربات با موفقیت راه‌اندازی شد!")
 #bot.run_until_disconnected()
-bot.run()
+#bot.run()
+# Start the bot
+if __name__ == '__main__':
+    print("Bot is running...")
+    bot.start()
+    bot.run_until_disconnected()
