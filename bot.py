@@ -20,12 +20,12 @@ async def main():
 
     # پیام خوشامد
     WELCOME_MSG = """
-    Hi, I'm Candletory Bot! 
-    Please select a button and use my features. 
-    Add me to your groups... ♥
-    
-    *By the way *
-    I love it when you invite your friends♥
+    🤖 Hi, I'm Candletory Bot!
+    ♦ Please select a button below and explore my features.
+    • Don't forget to add me to your groups! ♥️
+
+    ✨ By the way...
+    I love it when you invite your friends! 🥰
     """
 
     # هندلر برای پیام‌های ورودی
@@ -57,8 +57,8 @@ async def main():
             response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
             if response.status_code == 200:
                 prices = response.json()
-                print(f"پاسخ API: {prices}")
-                crypto_text = "\n".join([f"{item['title']}: {item['price']}" for item in prices.get('cryptocurrency', [])])
+                print(response.json())  # برای بررسی ساختار داده‌های JSON
+                crypto_text = "\n".join([f"{item['name']}: {item['price']} ({item['time']}) ({item['change_percent']}%) " for item in prices.get('cryptocurrency', [])])
                 await event.respond(f"💹 قیمت لحظه‌ای بازار کریپتو:\n\n{crypto_text}")
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت کریپتو. لطفاً دوباره تلاش کنید.")
@@ -68,7 +68,7 @@ async def main():
             response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
             if response.status_code == 200:
                 prices = response.json()
-                gold_text = "\n".join([f"{item['title']}: {item['price']}" for item in prices.get('gold', [])])
+                gold_text = "\n".join([f"{item['name']}: {item['price']} ({item['time']}) ({item['change_percent']}%) " for item in prices.get('gold', [])])
                 await event.respond(f"💰 قیمت لحظه‌ای طلا و سکه:\n\n{gold_text}")
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت طلا. لطفاً دوباره تلاش کنید.")
