@@ -20,11 +20,11 @@ async def main():
 
     # پیام خوشامد
     WELCOME_MSG = """
-    Hi, I'm Candletory Bot! /n
-    Please select a button and use my features. /n
-    Add me to your groups... ♥/n
-    /n
-    *By the way */n
+    Hi, I'm Candletory Bot! 
+    Please select a button and use my features. 
+    Add me to your groups... ♥
+    
+    *By the way *
     I love it when you invite your friends♥
     """
 
@@ -82,10 +82,10 @@ async def main():
             await event.edit("📤 ربات را با دوستان خود به اشتراک بگذارید:\nhttps://t.me/candletory_bot")
         
         elif data == 'add_to_group':
-            await event.edit("➕ برای اضافه کردن ربات به گروه، از لینک زیر استفاده کنید:\nhttps://t.me/candletory_bot?startgroup=true")
+            await event.edit("➕ برای اضافه کردن ربات به گروه، از لینک زیر استفاده کنید:\n https://t.me/candletory_bot?startgroup=true")
         
         elif data == 'daily_signals':
-            await event.edit("📊 سیگنال‌های روزانه به زودی فعال می‌شود. لطفاً در کانال ما عضو شوید.")
+            await event.edit("📊 سیگنال‌های روزانه به زودی فعال می‌شود. لطفاً در کانال ما عضو شوید./n https://t.me/candletory")
         
         elif data == 'market_sessions':
             await event.edit("⏰ زمان باز بودن بازارها:\n\n📈 فارکس: 24 ساعت (روزهای کاری)\n💰 طلا و ارز: 09:00 تا 17:00")
