@@ -2,6 +2,7 @@ import asyncio
 from telethon import TelegramClient, events, Button
 import requests
 import json
+import httpx
 
 # اطلاعات توکن ربات و مقداردهی اولیه
 API_ID = 25709855  # عدد API_ID شما
