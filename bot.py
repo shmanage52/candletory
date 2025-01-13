@@ -44,7 +44,6 @@ async def main():
             [Button.text('📊 درخواست سیگنال معاملاتی')],
             [Button.text('⏰ زمان باز بودن بازارها')],
         ]
-        print(buttons)
         await event.respond(WELCOME_MSG, buttons=buttons)
 
     # هندلر برای دکمه‌ها
