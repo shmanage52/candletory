@@ -34,7 +34,7 @@ async def main():
     async def start(event):
         # دکمه‌های شیشه‌ای
         buttons = [
-            [Button.inline('📈 قیمت لحظه‌ای ارز و بازار کریپتو', b'crypto_prices')],
+            [Button.text('📈 قیمت لحظه‌ای ارز و بازار کریپتو', b'crypto_prices')],
             [Button.inline('💰 قیمت طلا و سکه', b'gold_prices')],
             [Button.inline('💸 قیمت دلاو و ارز ', b'currency')],
             [Button.inline('👤 اطلاعات پروفایل من', b'profile')],
@@ -50,9 +50,12 @@ async def main():
     @bot.on(events.CallbackQuery)
     async def callback(event):
         # دریافت داده دکمه
-        data = event.data.decode('utf-8')
-        print(f"داده دریافت‌شده از دکمه: {data}")
-        if data == 'crypto_prices':
+        #data = event.data.decode('utf-8')
+        #print(f"داده دریافت‌شده از دکمه: {data}")
+        #if data == 'crypto_prices':
+
+        text = event.raw_text  # متن پیام ارسال‌شده توسط کاربر (نام دکمه کلیک‌شده)
+            if text == '📈 قیمت لحظه‌ای ارز و بازار کریپتو':
             await event.answer("در حال دریافت قیمت‌ها ...")
             response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
             if response.status_code == 200:
