@@ -55,17 +55,17 @@ async def main():
         #if data == 'crypto_prices':
 
         text = event.raw_text  # متن پیام ارسال‌شده توسط کاربر (نام دکمه کلیک‌شده)
-            if text == '📈 قیمت لحظه‌ای ارز و بازار کریپتو':
+        if text == '📈 قیمت لحظه‌ای ارز و بازار کریپتو':
             #await event.answer("در حال دریافت قیمت‌ها ...")
             response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
             if response.status_code == 200:
                 prices = response.json()
                 print(response.json())  # برای بررسی ساختار داده‌های JSON
                 crypto_text = "\n".join([
-                f"{item['name']}: {item['price']} ({item['time']}) "
-                f"📈 {item['change_percent']}%" if item['change_percent'] > 0 else
-                f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
-                for item in prices.get('cryptocurrency', [])
+                    f"{item['name']}: {item['price']} ({item['time']}) "
+                    f"📈 {item['change_percent']}%" if item['change_percent'] > 0 else
+                    f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
+                    for item in prices.get('cryptocurrency', [])
                 ])                
                 await event.respond(f"💹 قیمت لحظه‌ای بازار کریپتو:\n\n{crypto_text}")
             else:
