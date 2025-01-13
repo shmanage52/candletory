@@ -73,7 +73,12 @@ async def main():
             response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
             if response.status_code == 200:
                 prices = response.json()
-                gold_text = "\n".join([f"{item['name']}: {item['price']} ({item['time']}) ({item['change_percent']}%) " for item in prices.get('gold', [])])
+                gold_text = "\n".join([
+                f"{item['name']}: {item['price']} ({item['time']}) "
+                f"📈 {item['change_percent']}%" if item['change_percent'] > 0 else
+                f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
+                for item in prices.get('gold', [])
+            ])
                 await event.respond(f"💰 قیمت لحظه‌ای طلا و سکه:\n\n{gold_text}")
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت طلا. لطفاً دوباره تلاش کنید.")
@@ -83,8 +88,13 @@ async def main():
             response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
             if response.status_code == 200:
                 prices = response.json()
-                gold_text = "\n".join([f"{item['name']}: {item['price']} ({item['time']}) ({item['change_percent']}%) " for item in prices.get('currency', [])])
-                await event.respond(f"💸 قیمت لحظه‌ای ارز:\n\n{gold_text}")
+                currency_text = "\n".join([
+                f"{item['name']}: {item['price']} ({item['time']}) "
+                f"📈 {item['change_percent']}%" if item['change_percent'] > 0 else
+                f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
+                for item in prices.get('currency', [])
+            ])
+                await event.respond(f"💸 قیمت لحظه‌ای ارز:\n\n{currency}")
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت طلا. لطفاً دوباره تلاش کنید.")
 
