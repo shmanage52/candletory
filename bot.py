@@ -2,7 +2,7 @@ import asyncio
 from telethon import TelegramClient, events, Button
 import requests
 import json
-import httpx
+import httpx  # Ensure httpx is imported
 import logging  # Add logging import
 
 # Configure logging
