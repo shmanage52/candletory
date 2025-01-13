@@ -35,26 +35,27 @@ async def main():
         # دکمه‌های شیشه‌ای
         buttons = [
             [Button.text('📈 قیمت لحظه‌ای ارز و بازار کریپتو')],
-            [Button.inline('💰 قیمت طلا و سکه', b'gold_prices')],
-            [Button.inline('💸 قیمت دلاو و ارز ', b'currency')],
-            [Button.inline('👤 اطلاعات پروفایل من', b'profile')],
-            [Button.inline('📤 اشتراک ربات با دوستان', b'share')],
-            [Button.inline('✨ خرید اشتراک VIP', b'buy_vip')],
-            [Button.inline('➕ اضافه کردن ربات به گروه‌ها', b'add_to_group')],
-            [Button.inline('📊 درخواست سیگنال معاملاتی', b'daily_signals')],
-            [Button.inline('⏰ زمان باز بودن بازارها', b'market_sessions')],
+            [Button.text('💰 قیمت طلا و سکه')],
+            [Button.text('💸 قیمت دلاو و ارز')],
+            [Button.text('👤 اطلاعات پروفایل من')],
+            [Button.text('📤 اشتراک ربات با دوستان')],
+            [Button.text('✨ خرید اشتراک VIP')],
+            [Button.text('➕ اضافه کردن ربات به گروه‌ها')],
+            [Button.text('📊 درخواست سیگنال معاملاتی')],
+            [Button.text('⏰ زمان باز بودن بازارها')],
         ]
         await event.respond(WELCOME_MSG, buttons=buttons)
 
     # هندلر برای دکمه‌ها
     @bot.on(events.CallbackQuery)
-    async def callback(event):
+    #async def callback(event):
+    async def handle_buttons(event):
+        text = event.raw_text  # متن پیام ارسال‌شده توسط کاربر (نام دکمه کلیک‌شده)
         # دریافت داده دکمه
+        #if data == 'crypto_prices':
         #data = event.data.decode('utf-8')
         #print(f"داده دریافت‌شده از دکمه: {data}")
-        #if data == 'crypto_prices':
 
-        text = event.raw_text  # متن پیام ارسال‌شده توسط کاربر (نام دکمه کلیک‌شده)
         if text == '📈 قیمت لحظه‌ای ارز و بازار کریپتو':
             #await event.answer("در حال دریافت قیمت‌ها ...")
             response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
@@ -71,7 +72,7 @@ async def main():
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت کریپتو. لطفاً دوباره تلاش کنید.")
         
-        elif data == 'gold_prices':
+        elif text == '💰 قیمت طلا و سکه':
             await event.answer("در حال دریافت قیمت‌ها ...")
             response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
             if response.status_code == 200:
@@ -86,7 +87,7 @@ async def main():
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت طلا. لطفاً دوباره تلاش کنید.")
         
-        elif data == 'currency':
+        elif text == '💸 قیمت دلاو و ارز':
             await event.answer("در حال دریافت قیمت‌ها ...")
             response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
             if response.status_code == 200:
@@ -101,23 +102,23 @@ async def main():
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت طلا. لطفاً دوباره تلاش کنید.")
 
-        elif data == 'profile':
+        elif text == '👤 اطلاعات پروفایل من':
             user_id = event.sender_id
             await event.edit(f"👤 اطلاعات پروفایل شما:\n\n🆔 ID: {user_id}\n🏆 امتیاز: 0\n✨ اشتراک VIP: فعال نیست")
         
-        elif data == 'buy_vip':
+        elif text == '📤 اشتراک ربات با دوستان':
             await event.edit("✨ برای خرید اشتراک VIP، لطفاً به این لینک مراجعه کنید: [لینک پرداخت](https://example.com)", link_preview=False)
         
-        elif data == 'share':
+        elif text == '✨ خرید اشتراک VIP':
             await event.edit("📤 ربات را با دوستان خود به اشتراک بگذارید:\nhttps://t.me/candletory_bot")
         
-        elif data == 'add_to_group':
+        elif text == '➕ اضافه کردن ربات به گروه‌ها':
             await event.edit("➕ برای اضافه کردن ربات به گروه، از لینک زیر استفاده کنید:\n https://t.me/candletory_bot?startgroup=true")
         
-        elif data == 'daily_signals':
+        elif text == '📊 درخواست سیگنال معاملاتی':
             await event.edit("📊 سیگنال‌های روزانه به زودی فعال می‌شود. لطفاً در کانال ما عضو شوید.\n\n\n https://t.me/candletory")
         
-        elif data == 'market_sessions':
+        elif text == '⏰ زمان باز بودن بازارها':
             await event.edit("⏰ زمان باز بودن بازارها:\n\n📈 فارکس: 24 ساعت (روزهای کاری)\n💰 طلا و ارز: 09:00 تا 17:00")
         
         else:
