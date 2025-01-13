@@ -94,7 +94,7 @@ async def main():
                 f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
                 for item in prices.get('currency', [])
             ])
-                await event.respond(f"💸 قیمت لحظه‌ای ارز:\n\n{currency}")
+                await event.respond(f"💸 قیمت لحظه‌ای ارز:\n\n{currency_text}")
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت طلا. لطفاً دوباره تلاش کنید.")
 
