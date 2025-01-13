@@ -111,7 +111,7 @@ async def main():
 
     # Keep the bot running until it is disconnected
     await bot.run_until_disconnected()
-    await events.respond()
+    # await events.respond()
     
 if __name__ == "__main__":
     # Run the async main function inside an event loop
