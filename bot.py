@@ -44,6 +44,7 @@ async def main():
             [Button.text('📊 درخواست سیگنال معاملاتی')],
             [Button.text('⏰ زمان باز بودن بازارها')],
         ]
+        print(buttons)
         await event.respond(WELCOME_MSG, buttons=buttons)
 
     # هندلر برای دکمه‌ها
@@ -68,7 +69,7 @@ async def main():
                     f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
                     for item in prices.get('cryptocurrency', [])
                 ])                
-                await event.respond(f"💹 قیمت لحظه‌ای بازار کریپتو:\n\n{crypto_text}")
+                await event.respond(f"📈 قیمت لحظه‌ای ارز و بازار کریپتو:\n\n{crypto_text}")
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت کریپتو. لطفاً دوباره تلاش کنید.")
         
