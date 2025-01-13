@@ -45,82 +45,76 @@ async def main():
         await event.respond(WELCOME_MSG, buttons=buttons)
 
     # هندلر برای دکمه‌ها
-    @bot.on(events.CallbackQuery)
-    #async def callback(event):
-    async def handle_buttons(event):
+    @bot.on(events.NewMessage)
+    async def handle_message(event):
         text = event.raw_text  # متن پیام ارسال‌شده توسط کاربر (نام دکمه کلیک‌شده)
-        # دریافت داده دکمه
-        #if data == 'crypto_prices':
-        #data = event.data.decode('utf-8')
-        #print(f"داده دریافت‌شده از دکمه: {data}")
 
         if text == '📈 قیمت لحظه‌ای ارز و بازار کریپتو':
-            #await event.answer("در حال دریافت قیمت‌ها ...")
-            response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
-            if response.status_code == 200:
-                prices = response.json()
-                print(response.json())  # برای بررسی ساختار داده‌های JSON
-                crypto_text = "\n".join([
-                    f"{item['name']}: {item['price']} ({item['time']}) "
-                    f"📈 {item['change_percent']}%" if item['change_percent'] > 0 else
+            async with httpx.AsyncClient() as client:
+                response = await client.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
+                if response.status_code == 200:
+                    prices = response.json()
+                    crypto_text = "\n".join([
+                    f"{item['name']}: {item['price']} ({item['time']}) 📈 {item['change_percent']}%"
+                    if item['change_percent'] > 0 else
                     f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
                     for item in prices.get('cryptocurrency', [])
-                ])                
-                await event.respond(f"📈 قیمت لحظه‌ای ارز و بازار کریپتو:\n\n{crypto_text}")
-            else:
-                await event.respond("خطا در دریافت اطلاعات قیمت کریپتو. لطفاً دوباره تلاش کنید.")
-        
+                ])
+                    await event.reply(f"📈 قیمت لحظه‌ای ارز و بازار کریپتو:\n\n{crypto_text}")
+                else:
+                    await event.reply("خطا در دریافت اطلاعات قیمت کریپتو.")
+    
         elif text == '💰 قیمت طلا و سکه':
-            await event.answer("در حال دریافت قیمت‌ها ...")
-            response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
-            if response.status_code == 200:
-                prices = response.json()
-                gold_text = "\n".join([
-                f"{item['name']}: {item['price']} ({item['time']}) "
-                f"📈 {item['change_percent']}%" if item['change_percent'] > 0 else
-                f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
-                for item in prices.get('gold', [])
-            ])
-                await event.respond(f"💰 قیمت لحظه‌ای طلا و سکه:\n\n{gold_text}")
-            else:
-                await event.respond("خطا در دریافت اطلاعات قیمت طلا. لطفاً دوباره تلاش کنید.")
-        
-        elif text == '💸 قیمت دلاو و ارز':
-            await event.answer("در حال دریافت قیمت‌ها ...")
-            response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
-            if response.status_code == 200:
-                prices = response.json()
-                currency_text = "\n".join([
-                f"{item['name']}: {item['price']} ({item['time']}) "
-                f"📈 {item['change_percent']}%" if item['change_percent'] > 0 else
-                f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
-                for item in prices.get('currency', [])
-            ])
-                await event.respond(f"💸 قیمت لحظه‌ای ارز:\n\n{currency_text}")
-            else:
-                await event.respond("خطا در دریافت اطلاعات قیمت طلا. لطفاً دوباره تلاش کنید.")
-
+             async with httpx.AsyncClient() as client:
+                response = await client.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
+                if response.status_code == 200:
+                    prices = response.json()
+                    gold_text = "\n".join([
+                    f"{item['name']}: {item['price']} ({item['time']}) 📈 {item['change_percent']}%"
+                    if item['change_percent'] > 0 else
+                    f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
+                    for item in prices.get('gold', [])
+                ])
+                    await event.reply(f"💰 قیمت لحظه‌ای طلا و سکه:\n\n{gold_text}")
+                else:
+                    await event.reply("خطا در دریافت اطلاعات قیمت طلا.")
+    
+        elif text == '💸 قیمت دلار و ارز':
+            async with httpx.AsyncClient() as client:
+                response = await client.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
+                if response.status_code == 200:
+                    prices = response.json()
+                    currency_text = "\n".join([
+                    f"{item['name']}: {item['price']} ({item['time']}) 📈 {item['change_percent']}%"
+                    if item['change_percent'] > 0 else
+                    f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
+                    for item in prices.get('currency', [])
+                ])
+                    await event.reply(f"💸 قیمت لحظه‌ای ارز:\n\n{currency_text}")
+                else:
+                    await event.reply("خطا در دریافت اطلاعات قیمت ارز.")
+    
         elif text == '👤 اطلاعات پروفایل من':
             user_id = event.sender_id
-            await event.edit(f"👤 اطلاعات پروفایل شما:\n\n🆔 ID: {user_id}\n🏆 امتیاز: 0\n✨ اشتراک VIP: فعال نیست")
-        
+            await event.reply(f"👤 اطلاعات پروفایل شما:\n\n🆔 ID: {user_id}\n🏆 امتیاز: 0\n✨ اشتراک VIP: فعال نیست")
+    
         elif text == '📤 اشتراک ربات با دوستان':
-            await event.edit("✨ برای خرید اشتراک VIP، لطفاً به این لینک مراجعه کنید: [لینک پرداخت](https://example.com)", link_preview=False)
-        
+            await event.reply("📤 ربات را با دوستان خود به اشتراک بگذارید:\nhttps://t.me/candletory_bot")
+    
         elif text == '✨ خرید اشتراک VIP':
-            await event.edit("📤 ربات را با دوستان خود به اشتراک بگذارید:\nhttps://t.me/candletory_bot")
-        
+            await event.reply("✨ برای خرید اشتراک VIP، لطفاً به این لینک مراجعه کنید:\nhttps://example.com")
+    
         elif text == '➕ اضافه کردن ربات به گروه‌ها':
-            await event.edit("➕ برای اضافه کردن ربات به گروه، از لینک زیر استفاده کنید:\n https://t.me/candletory_bot?startgroup=true")
-        
+            await event.reply("➕ برای اضافه کردن ربات به گروه، از لینک زیر استفاده کنید:\n https://t.me/candletory_bot?startgroup=true")
+    
         elif text == '📊 درخواست سیگنال معاملاتی':
-            await event.edit("📊 سیگنال‌های روزانه به زودی فعال می‌شود. لطفاً در کانال ما عضو شوید.\n\n\n https://t.me/candletory")
-        
+            await event.reply("📊 سیگنال‌های روزانه به زودی فعال می‌شود. لطفاً در کانال ما عضو شوید:\nhttps://t.me/candletory")
+    
         elif text == '⏰ زمان باز بودن بازارها':
-            await event.edit("⏰ زمان باز بودن بازارها:\n\n📈 فارکس: 24 ساعت (روزهای کاری)\n💰 طلا و ارز: 09:00 تا 17:00")
-        
+            await event.reply("⏰ زمان باز بودن بازارها:\n\n📈 فارکس: 24 ساعت (روزهای کاری)\n💰 طلا و ارز: 09:00 تا 17:00")
+    
         else:
-            await event.answer("❌ دستور نامعتبر.")
+            await event.reply("❌ دستور نامعتبر.")
 
     # Keep the bot running until it is disconnected
     await bot.run_until_disconnected()
