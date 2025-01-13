@@ -1,7 +1,5 @@
 import asyncio
-from telethon import TelegramClient
 from telethon import TelegramClient, events, Button
-from telethon.tl.custom import Button
 import requests
 import json
 
@@ -126,13 +124,8 @@ async def main():
 
     # Keep the bot running until it is disconnected
     await bot.run_until_disconnected()
-    await events.respond()
-    
+  
+   
 if __name__ == "__main__":
     # Run the async main function inside an event loop
-    asyncio.run(main())
-    
-if __name__ == '__main__':
-    print("Bot is running...")
-    bot.start()
-    bot.run_until_disconnected()
+    bot.loop.run_until_complete(main())
