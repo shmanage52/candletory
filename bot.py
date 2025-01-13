@@ -58,8 +58,12 @@ async def main():
             if response.status_code == 200:
                 prices = response.json()
                 print(response.json())  # برای بررسی ساختار داده‌های JSON
-                crypto_text = "\n".join([f"{item['name']}: {item['price']} ({item['time']}) ({item['change_percent']}%) " for item in prices.get('cryptocurrency', [])])
-                await event.respond(f"💹 قیمت لحظه‌ای بازار کریپتو:\n\n{crypto_text}")
+                crypto_text = "\n".join([
+                f"{item['name']}: {item['price']} ({item['time']}) "
+                f"📈 {item['change_percent']}%" if item['change_percent'] > 0 else
+                f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
+                for item in prices.get('cryptocurrency', [])
+            ])                await event.respond(f"💹 قیمت لحظه‌ای بازار کریپتو:\n\n{crypto_text}")
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت کریپتو. لطفاً دوباره تلاش کنید.")
         
