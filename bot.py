@@ -22,7 +22,7 @@ async def main():
     # پیام خوشامد
     WELCOME_MSG = """
     🤖 Hi, I'm Candletory Bot!
-    ♦ Please select a button below and explore my features.
+    ♦ Please select a Option below and explore my features.
     • Don't forget to add me to your groups! ♥️
 
     ✨ By the way...
