@@ -56,7 +56,7 @@ async def main():
 
         text = event.raw_text  # متن پیام ارسال‌شده توسط کاربر (نام دکمه کلیک‌شده)
             if text == '📈 قیمت لحظه‌ای ارز و بازار کریپتو':
-            await event.answer("در حال دریافت قیمت‌ها ...")
+            #await event.answer("در حال دریافت قیمت‌ها ...")
             response = requests.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
             if response.status_code == 200:
                 prices = response.json()
