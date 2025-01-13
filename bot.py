@@ -34,7 +34,7 @@ async def main():
     async def start(event):
         # دکمه‌های شیشه‌ای
         buttons = [
-            [Button.text('📈 قیمت لحظه‌ای ارز و بازار کریپتو', b'crypto_prices')],
+            [Button.text('📈 قیمت لحظه‌ای ارز و بازار کریپتو')],
             [Button.inline('💰 قیمت طلا و سکه', b'gold_prices')],
             [Button.inline('💸 قیمت دلاو و ارز ', b'currency')],
             [Button.inline('👤 اطلاعات پروفایل من', b'profile')],
