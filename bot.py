@@ -63,7 +63,8 @@ async def main():
                 f"📈 {item['change_percent']}%" if item['change_percent'] > 0 else
                 f"{item['name']}: {item['price']} ({item['time']}) 📉 {item['change_percent']}%"
                 for item in prices.get('cryptocurrency', [])
-            ])                await event.respond(f"💹 قیمت لحظه‌ای بازار کریپتو:\n\n{crypto_text}")
+                ])                
+                await event.respond(f"💹 قیمت لحظه‌ای بازار کریپتو:\n\n{crypto_text}")
             else:
                 await event.respond("خطا در دریافت اطلاعات قیمت کریپتو. لطفاً دوباره تلاش کنید.")
         
@@ -111,7 +112,7 @@ async def main():
 
     # Keep the bot running until it is disconnected
     await bot.run_until_disconnected()
-    # await events.respond()
+    await events.respond()
     
 if __name__ == "__main__":
     # Run the async main function inside an event loop
