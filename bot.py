@@ -52,8 +52,9 @@ async def main():
     # Handler for button presses
     @bot.on(events.NewMessage)
     async def handle_message(event):
-        text = event.raw_text  # Text message sent by the user (button clicked name)
-        logging.debug("Received message: %s from user: %s", text, event.sender_id)
+        async with httpx.AsyncClient() as client:
+            text = event.raw_text  # Text message sent by the user (button clicked name)
+            logging.debug("Received message: %s from user: %s", text, event.sender_id)
 
         if text == '📈 قیمت لحظه‌ای ارز و بازار کریپتو':
             logging.debug("Fetching crypto prices")
@@ -138,6 +139,7 @@ async def main():
             logging.warning("User %s sent an invalid command: %s", event.sender_id, text)
             await event.reply("❌ دستور نامعتبر.")
 
+    pass
     # Keep the bot running until it is disconnected
     await bot.run_until_disconnected()
 
