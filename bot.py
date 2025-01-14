@@ -76,7 +76,7 @@ async def main():
         elif text == '💰 قیمت طلا و سکه':
             logging.debug("Fetching gold prices")
             async with httpx.AsyncClient() as client:
-                response = await client.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
+                response = httpx.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
                 if response.status_code == 200:
                     logging.debug("Gold prices fetched successfully")
                     prices = response.json()
