@@ -58,7 +58,7 @@ async def main():
         if text == '📈 قیمت لحظه‌ای ارز و بازار کریپتو':
             logging.debug("Fetching crypto prices")
             async with httpx.AsyncClient() as client:
-                response = await client.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
+                response = httpx.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
                 if response.status_code == 200:
                     logging.debug("Crypto prices fetched successfully")
                     prices = response.json()
@@ -94,7 +94,7 @@ async def main():
         elif text == '💸 قیمت دلار و ارز':
             logging.debug("Fetching currency prices")
             async with httpx.AsyncClient() as client:
-                response = await client.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
+                response = httpx.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
                 if response.status_code == 200:
                     logging.debug("Currency prices fetched successfully")
                     prices = response.json()
