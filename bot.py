@@ -52,9 +52,8 @@ async def main():
     # Handler for button presses
     @bot.on(events.NewMessage)
     async def handle_message(event):
-        async with httpx.AsyncClient() as client:
-            text = event.raw_text  # Text message sent by the user (button clicked name)
-            logging.debug("Received message: %s from user: %s", text, event.sender_id)
+        text = event.raw_text  # Text message sent by the user (button clicked name)
+        logging.debug("Received message: %s from user: %s", text, event.sender_id)
 
         if text == '📈 قیمت لحظه‌ای ارز و بازار کریپتو':
             logging.debug("Fetching crypto prices")
