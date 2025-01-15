@@ -1,0 +1,4 @@
+asyncio
+telethon
+httpx
+logging
