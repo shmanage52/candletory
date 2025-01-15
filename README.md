@@ -14,12 +14,12 @@ Candletory is a versatile platform offering innovative solutions across financia
 ---
 
 ## 📂 Repository Structure
-candletory/
-│
-├── bot.py # Main bot script
-├── candletory_bot.session # Session configuration
-├── requirements.txt # Python dependencies
-└── README.md # Project documentation
+candletory/<br>
+│<br>
+├── bot.py # Main bot script<br>
+├── candletory_bot.session # Session configuration<br>
+├── requirements.txt # Python dependencies<br>
+└── README.md # Project documentation<br>
 ---
 
 ## 🚀 Getting Started
