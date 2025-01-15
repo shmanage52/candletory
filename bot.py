@@ -40,12 +40,12 @@ async def main():
             [Button.text('📈 قیمت لحظه‌ای ارز و بازار کریپتو')],
             [Button.text('💰 قیمت طلا و سکه')],
             [Button.text('💸 قیمت دلار و ارز')],
+            [Button.text('📰 Latest Forex News')],
             [Button.text('👤 اطلاعات پروفایل من')],
             [Button.text('📤 اشتراک ربات با دوستان')],
             [Button.text('✨ خرید اشتراک VIP')],
             [Button.text('➕ اضافه کردن ربات به گروه‌ها')],
             [Button.text('📊 درخواست سیگنال معاملاتی')],
-            [Button.text('⏰ زمان باز بودن بازارها')],
         ]
         await event.respond(WELCOME_MSG, buttons=buttons)
 
@@ -58,7 +58,7 @@ async def main():
         if text == '📈 قیمت لحظه‌ای ارز و بازار کریپتو':
             logging.debug("Fetching crypto prices")
             async with httpx.AsyncClient() as client:
-                response = httpx.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
+                response = await client.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
                 if response.status_code == 200:
                     logging.debug("Crypto prices fetched successfully")
                     prices = response.json()
@@ -76,7 +76,7 @@ async def main():
         elif text == '💰 قیمت طلا و سکه':
             logging.debug("Fetching gold prices")
             async with httpx.AsyncClient() as client:
-                response = httpx.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
+                response = await client.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
                 if response.status_code == 200:
                     logging.debug("Gold prices fetched successfully")
                     prices = response.json()
@@ -94,7 +94,7 @@ async def main():
         elif text == '💸 قیمت دلار و ارز':
             logging.debug("Fetching currency prices")
             async with httpx.AsyncClient() as client:
-                response = httpx.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
+                response = await client.get('https://brsapi.ir/FreeTsetmcBourseApi/Api_Free_Gold_Currency_v2.json')
                 if response.status_code == 200:
                     logging.debug("Currency prices fetched successfully")
                     prices = response.json()
@@ -130,9 +130,21 @@ async def main():
             logging.debug("User %s requested trading signals", event.sender_id)
             await event.reply("📊 سیگنال‌های روزانه به زودی فعال می‌شود. لطفاً در کانال ما عضو شوید:\nhttps://t.me/candletory")
         
-        elif text == '⏰ زمان باز بودن بازارها':
-            logging.debug("User %s requested market open times", event.sender_id)
-            await event.reply("⏰ زمان باز بودن بازارها:\n\n📈 فارکس: 24 ساعت (روزهای کاری)\n💰 طلا و ارز: 09:00 تا 17:00")
+        elif text == '📰 Latest Forex News':
+            logging.debug("Fetching latest forex news")
+            async with httpx.AsyncClient() as client:
+                response = await client.get('https://api.finage.co.uk/news/forex/USD?apikey=API_KEY76F7Z7LN5UPHIWEX7PYVKWUM5V1IO60P')
+                if response.status_code == 200:
+                    logging.debug("Latest forex news fetched successfully")
+                    news = response.json()
+                    news_text = "\n\n".join([
+                        f"📰 {item['title']}\n{item['description']}\n🔗 {item['url']}"
+                        for item in news
+                    ])
+                    await event.reply(f"📰 Latest Forex News:\n\n{news_text}")
+                else:
+                    logging.error("Failed to fetch latest forex news")
+                    await event.reply("خطا در دریافت اخبار فارکس.")
         
         else:
             logging.warning("User %s sent an invalid command: %s", event.sender_id, text)
@@ -143,5 +155,5 @@ async def main():
     await bot.run_until_disconnected()
 
 if __name__ == "__main__":
-    # a Run the async main function inside an event loop
+    # Run the async main function inside an event loop
     bot.loop.run_until_complete(main())
