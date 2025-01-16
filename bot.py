@@ -2,6 +2,7 @@ import asyncio
 from telethon import TelegramClient, events, Button
 import httpx  # Ensure httpx is imported
 import logging  # Add logging import
+import requests
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -133,24 +134,36 @@ async def main():
         elif text == '📰 دریافت اخبار فارکس':
             logging.debug("Fetching latest forex news")
             async with httpx.AsyncClient() as client:
-                response = await client.get('https://api.finage.co.uk/news/forex/USD?apikey=API_KEY76F7Z7LN5UPHIWEX7PYVKWUM5V1IO60P')
-                if response.status_code == 200:
-                    logging.debug("Latest forex news fetched successfully")
+                try:
+                    response = await client.get('https://api.finage.co.uk/news/forex/USD?apikey=API_KEY76F7Z7LN5UPHIWEX7PYVKWUM5V1IO60P', timeout=10)
+                    response.raise_for_status()
                     news = response.json()
+
+                    if not isinstance(news, list):
+                        logging.error("Unexpected response format: %s", news)
+                        await event.reply("خطا در دریافت اخبار. لطفاً دوباره امتحان کنید.")
+                        return
+
                     news_text = "\n\n".join([
-                        f"📰 {item['title']}\n{item['description']}\n🔗 {item['url']}"
+                        f"📰 {item.get('title', 'عنوان ناموجود')}\n"
+                        f"{item.get('description', 'توضیحات ناموجود')}\n"
+                        f"🔗 {item.get('url', 'لینک ناموجود')}"
                         for item in news
                     ])
-                    await event.reply(f"📰 دریافت اخبار فارکس:\n\n{news_text}")
-                else:
-                    logging.error("Failed to fetch latest forex news")
-                    await event.reply("خطا در دریافت اخبار فارکس.")
-        
+                    if not news_text.strip():
+                        await event.reply("هیچ خبری یافت نشد.")
+                    else:
+                        await event.reply(f"📰 دریافت اخبار فارکس:\n\n{news_text}")
+                except httpx.RequestError as e:
+                    logging.error("Request failed: %s", e)
+                    await event.reply("خطا در اتصال به سرور. لطفاً بعداً امتحان کنید.")
+                except httpx.HTTPStatusError as e:
+                    logging.error("HTTP error: %s", e.response.text)
+                    await event.reply("خطا در دریافت اخبار. لطفاً بعداً امتحان کنید.")
         else:
-            logging.warning("User %s sent an invalid command: %s", event.sender_id, text)
+            logging.warning("Invalid command received: %s", text)
             await event.reply("❌ دستور نامعتبر.")
 
-    pass
     # Keep the bot running until it is disconnected
     await bot.run_until_disconnected()
 
