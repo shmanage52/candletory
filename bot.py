@@ -40,7 +40,7 @@ async def main():
             [Button.text('📈 قیمت لحظه‌ای ارز و بازار کریپتو')],
             [Button.text('💰 قیمت طلا و سکه')],
             [Button.text('💸 قیمت دلار و ارز')],
-            [Button.text('📰 Latest Forex News')],
+            [Button.text('📰 دریافت اخبار فارکس')],
             [Button.text('👤 اطلاعات پروفایل من')],
             [Button.text('📤 اشتراک ربات با دوستان')],
             [Button.text('✨ خرید اشتراک VIP')],
@@ -130,7 +130,7 @@ async def main():
             logging.debug("User %s requested trading signals", event.sender_id)
             await event.reply("📊 سیگنال‌های روزانه به زودی فعال می‌شود. لطفاً در کانال ما عضو شوید:\nhttps://t.me/candletory")
         
-        elif text == '📰 Latest Forex News':
+        elif text == '📰 دریافت اخبار فارکس':
             logging.debug("Fetching latest forex news")
             async with httpx.AsyncClient() as client:
                 response = await client.get('https://api.finage.co.uk/news/forex/USD?apikey=API_KEY76F7Z7LN5UPHIWEX7PYVKWUM5V1IO60P')
@@ -141,7 +141,7 @@ async def main():
                         f"📰 {item['title']}\n{item['description']}\n🔗 {item['url']}"
                         for item in news
                     ])
-                    await event.reply(f"📰 Latest Forex News:\n\n{news_text}")
+                    await event.reply(f"📰 دریافت اخبار فارکس:\n\n{news_text}")
                 else:
                     logging.error("Failed to fetch latest forex news")
                     await event.reply("خطا در دریافت اخبار فارکس.")
