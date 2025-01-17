@@ -132,37 +132,53 @@ async def main():
             await event.reply("📊 سیگنال‌های روزانه به زودی فعال می‌شود. لطفاً در کانال ما عضو شوید:\nhttps://t.me/candletory")
         
         elif text == '📰 دریافت اخبار فارکس':
-            logging.debug("Fetching latest forex news")
+            logging.debug("Fetching the latest forex news")
             async with httpx.AsyncClient() as client:
                 try:
-                    response = await client.get('https://api.finage.co.uk/news/forex/USD?apikey=API_KEY76F7Z7LN5UPHIWEX7PYVKWUM5V1IO60P', timeout=10)
+                    # Send request to the API
+                    response = await client.get(
+                        'https://api.finage.co.uk/news/forex/USD?apikey=API_KEY76F7Z7LN5UPHIWEX7PYVKWUM5V1IO60P',
+                        timeout=10
+                    )
                     response.raise_for_status()
-                    news = response.json()
+                    news_data = response.json()
 
-                    if not isinstance(news, list):
-                        logging.error("Unexpected response format: %s", news)
+                    # Validate the response format
+                    if "news" not in news_data or not isinstance(news_data["news"], list):
+                        logging.error("Unexpected response format: %s", news_data)
                         await event.reply("خطا در دریافت اخبار. لطفاً دوباره امتحان کنید.")
                         return
 
+                    # Extract and format news items
+                    news_items = news_data["news"]
                     news_text = "\n\n".join([
                         f"📰 {item.get('title', 'عنوان ناموجود')}\n"
                         f"{item.get('description', 'توضیحات ناموجود')}\n"
                         f"🔗 {item.get('url', 'لینک ناموجود')}"
-                        for item in news
+                        for item in news_items
                     ])
+
+                    # Check if there are no valid news items
                     if not news_text.strip():
                         await event.reply("هیچ خبری یافت نشد.")
                     else:
                         await event.reply(f"📰 دریافت اخبار فارکس:\n\n{news_text}")
+                
                 except httpx.RequestError as e:
                     logging.error("Request failed: %s", e)
                     await event.reply("خطا در اتصال به سرور. لطفاً بعداً امتحان کنید.")
+                
                 except httpx.HTTPStatusError as e:
                     logging.error("HTTP error: %s", e.response.text)
                     await event.reply("خطا در دریافت اخبار. لطفاً بعداً امتحان کنید.")
+
+                except Exception as e:
+                    logging.error("Unexpected error: %s", e)
+                    await event.reply("یک خطای غیرمنتظره رخ داده است. لطفاً بعداً امتحان کنید.")
         else:
             logging.warning("Invalid command received: %s", text)
             await event.reply("❌ دستور نامعتبر.")
+
 
     # Keep the bot running until it is disconnected
     await bot.run_until_disconnected()
