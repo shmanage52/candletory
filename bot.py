@@ -175,6 +175,8 @@ async def main():
                 except Exception as e:
                     logging.error("Unexpected error: %s", e)
                     await event.reply("یک خطای غیرمنتظره رخ داده است. لطفاً بعداً امتحان کنید.")
+ 
+ 
         else:
             logging.warning("Invalid command received: %s", text)
             await event.reply("❌ دستور نامعتبر.")
