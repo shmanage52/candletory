@@ -168,5 +168,5 @@ async def main():
     await bot.run_until_disconnected()
 
 if __name__ == "__main__":
-    # Run the async main function inside an event loop
+    # run Run the async main function inside an event loop
     bot.loop.run_until_complete(main())
