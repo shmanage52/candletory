@@ -4,12 +4,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forex Widget</title>
+    <title>Forex Widget <br> By Candletory Co</title><br>
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: Arial, sans-serif;
+            font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif, sans-serif;
             background: linear-gradient(120deg, #001f3f, #003b8b, #0057bf);
             background-size: 400% 400%;
             animation: gradientBG 10s ease infinite;
@@ -37,6 +37,7 @@
 
         .widget-container {
             width: 90%;
+            height: fit-content;
             max-width: 600px;
             margin: 20px auto;
             background: rgba(255, 255, 255, 0.1);
@@ -49,7 +50,7 @@
         }
 
         .widget {
-            height: 200px;
+            height: 400px;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -60,14 +61,17 @@
 
         @media (max-width: 768px) {
             .widget {
-                height: 150px;
+                height: 400px;
             }
         }
     </style>
 </head>
 
 <body>
-    <h1>Forex Widget</h1>
+    <h1
+        style="text-align-last: center ;font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; -webkit-text-size-adjust: auto;">
+    </h1>
+    Forex Widgets <br>Candletory Co</h1>
 
     <div class="widget-container">
         <div class="widget">
@@ -78,17 +82,31 @@
                 <div
                     style="width: fit-content; margin: auto;font-family: roboto,sans-serif!important; font-size: 13px; color: #666666;">
                     <a href="https://www.myfxbook.com/market-hours" title="Forex Market Hours" class="myfxbookLink"
-                        target="_blank" rel="noopener"><b style="color:#666666">Market Hours</b></a>
-                    by Myfxbook.com
+                        target="_blank" rel="noopener"><b style="color:#666666">
                 </div>
             </div>
             <!-- myfxbook.com Market Hours Widget - End -->
         </div>
         <div class="widget">
-            <!-- کد ویجت دوم اینجا قرار می‌گیرد -->
+            <!-- myfxbook.com Top News widget - Start -->
+            <div>
+                <script class="powered" type="text/javascript"
+                    src="https://widgets.myfxbook.com/scripts/fxTopNews.js"></script>
+            </div>
+            <div style="font-size: 10px">
+                <a href="https://www.myfxbook.com/news" title="Forex News" class="myfxbookLink" target="_self"
+                    rel="noopener">
+                    Forex News</a> by Myfxbook.com
+            </div>
+
+            <script type="text/javascript">showTopNewsWidget()</script>
+            <!-- myfxbook.com Top News widget - End -->
+
         </div>
         <div class="widget">
-            <!-- کد ویجت سوم اینجا قرار می‌گیرد -->
+
+
+
         </div>
     </div>
 </body>
